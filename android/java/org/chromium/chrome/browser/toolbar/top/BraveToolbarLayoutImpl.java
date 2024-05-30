@@ -669,11 +669,8 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                                     addMediaToPlaylist(items);
                                 } else if (playlistOptionsModel.getOptionType()
                                         == PlaylistOptionsEnum.OPEN_PLAYLIST) {
-                                    BraveActivity.getBraveActivity()
-                                            .openPlaylistActivity(
-                                                    getContext(),
-                                                    ConstantUtils.DEFAULT_PLAYLIST,
-                                                    false);
+                                    BraveActivity.getBraveActivity().openPlaylistActivity(
+                                            getContext(), ConstantUtils.DEFAULT_PLAYLIST, false);
                                 } else if (playlistOptionsModel.getOptionType()
                                         == PlaylistOptionsEnum.PLAYLIST_SETTINGS) {
                                     BraveActivity.getBraveActivity().openBravePlaylistSettings();
@@ -721,19 +718,16 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                             playlistItems.add(playlistItem);
                         }
                     }
-                    if (playlistItems.size() > 0) {
-                        mPlaylistService.addMediaFiles(
-                                playlistItems.toArray(new PlaylistItem[0]),
-                                ConstantUtils.DEFAULT_PLAYLIST,
-                                true,
-                                addedItems -> {
-                                    if (addedItems.length > 0) {
-                                        showAddedToPlaylistSnackBar();
-                                    }
-                                });
-                    } else {
-                        showAlreadyAddedToPlaylistSnackBar();
-                    }
+                    // if (playlistItems.size() > 0) {
+                    mPlaylistService.addMediaFiles(playlistItems.toArray(new PlaylistItem[0]),
+                            ConstantUtils.DEFAULT_PLAYLIST, true, addedItems -> {
+                                if (addedItems.length > 0) {
+                                    showAddedToPlaylistSnackBar();
+                                }
+                            });
+                    // } else {
+                    //     showAlreadyAddedToPlaylistSnackBar();
+                    // }
                 });
     }
 
@@ -760,11 +754,8 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                             @Override
                             public void onClick(View v) {
                                 try {
-                                    BraveActivity.getBraveActivity()
-                                            .openPlaylistActivity(
-                                                    getContext(),
-                                                    ConstantUtils.DEFAULT_PLAYLIST,
-                                                    false);
+                                    BraveActivity.getBraveActivity().openPlaylistActivity(
+                                            getContext(), ConstantUtils.DEFAULT_PLAYLIST, false);
                                 } catch (BraveActivity.BraveActivityNotFoundException e) {
                                     Log.e(TAG, "showAddedToPlaylistSnackBar onClick ", e);
                                 }
@@ -1694,8 +1685,8 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         }
         if (items.length > 0 && !UrlUtilities.isNtpUrl(currentTab.getUrl().getSpec())) {
             mShouldShowPlaylistMenu = true;
-            if (ChromeSharedPreferences.getInstance()
-                    .readBoolean(BravePreferenceKeys.PREF_ADD_TO_PLAYLIST_BUTTON, true)) {
+            if (ChromeSharedPreferences.getInstance().readBoolean(
+                        BravePreferenceKeys.PREF_ADD_TO_PLAYLIST_BUTTON, true)) {
                 showPlaylistButton(items);
             }
         }
