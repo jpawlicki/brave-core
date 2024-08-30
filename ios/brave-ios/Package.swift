@@ -45,6 +45,7 @@ var package = Package(
     .library(name: "UserAgent", targets: ["UserAgent"]),
     .library(name: "CredentialProviderUI", targets: ["CredentialProviderUI"]),
     .library(name: "PlaylistUI", targets: ["PlaylistUI"]),
+    .library(name: "BrowserMenu", targets: ["BrowserMenu"]),
     .executable(name: "LeoAssetCatalogGenerator", targets: ["LeoAssetCatalogGenerator"]),
     .plugin(name: "IntentBuilderPlugin", targets: ["IntentBuilderPlugin"]),
     .plugin(name: "LoggerPlugin", targets: ["LoggerPlugin"]),
@@ -419,6 +420,7 @@ var package = Package(
       dependencies: ["PlaylistUI", "Playlist", "Preferences", "Data", "TestHelpers"],
       resources: [.copy("Resources/Big_Buck_Bunny_360_10s_1MB.mp4")]
     ),
+    .target(name: "BrowserMenu", dependencies: ["DesignSystem", "BraveUI"]),
     .plugin(name: "IntentBuilderPlugin", capability: .buildTool()),
     .plugin(name: "LoggerPlugin", capability: .buildTool()),
     .plugin(
