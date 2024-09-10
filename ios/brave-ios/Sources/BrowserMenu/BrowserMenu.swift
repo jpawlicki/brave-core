@@ -6,13 +6,6 @@
 import SwiftUI
 import DesignSystem
 
-public struct Action: Identifiable {
-  public var id: String
-  public var title: String
-  public var braveSystemImage: String
-  public var handler: (Action) -> Void
-}
-
 struct BrowserMenu: View {
   var body: some View {
     ScrollView(.vertical) {
@@ -35,26 +28,26 @@ struct BrowserMenu: View {
           }
           .foregroundStyle(Color(braveSystemName: .textTertiary))
           QuickActionsView(actions: [
-            .init(id: "1", title: "VPN Off", braveSystemImage: "leo.product.vpn", handler: { _ in }),
-            .init(id: "2", title: "Add Bookmark", braveSystemImage: "leo.browser.bookmark-add", handler: { _ in }),
-            .init(id: "3", title: "History", braveSystemImage: "leo.history", handler: { _ in }),
-            .init(id: "4", title: "Summarize", braveSystemImage: "leo.product.brave-leo", handler: { _ in }),
-            .init(id: "5", title: "Playlist", braveSystemImage: "leo.product.playlist", handler: { _ in }),
+            .init(id: "1", title: "VPN Off", braveSystemImage: "leo.product.vpn"),
+            .init(id: "2", title: "Add Bookmark", braveSystemImage: "leo.browser.bookmark-add"),
+            .init(id: "3", title: "History", braveSystemImage: "leo.history"),
+            .init(id: "4", title: "Summarize", braveSystemImage: "leo.product.brave-leo"),
+            .init(id: "5", title: "Playlist", braveSystemImage: "leo.product.playlist"),
           ])
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         ActionsList(actions: [
-          .init(id: "1", title: "VPN Off", braveSystemImage: "leo.product.vpn", handler: { _ in }),
-          .init(id: "2", title: "Add Bookmark", braveSystemImage: "leo.browser.bookmark-add", handler: { _ in }),
-          .init(id: "3", title: "History", braveSystemImage: "leo.history", handler: { _ in }),
-          .init(id: "4", title: "Summarize", braveSystemImage: "leo.product.brave-leo", handler: { _ in }),
-          .init(id: "5", title: "Playlist", braveSystemImage: "leo.product.playlist", handler: { _ in }),
+          .init(id: "1", title: "VPN Off", braveSystemImage: "leo.product.vpn"),
+          .init(id: "2", title: "Add Bookmark", braveSystemImage: "leo.browser.bookmark-add"),
+          .init(id: "3", title: "History", braveSystemImage: "leo.history"),
+          .init(id: "4", title: "Summarize", braveSystemImage: "leo.product.brave-leo"),
+          .init(id: "5", title: "Playlist", braveSystemImage: "leo.product.playlist"),
         ], additionalActions: [
-          .init(id: "5", title: "Playlist", braveSystemImage: "leo.product.playlist", handler: { _ in }),
-          .init(id: "4", title: "Summarize", braveSystemImage: "leo.product.brave-leo", handler: { _ in }),
+          .init(id: "5", title: "Playlist", braveSystemImage: "leo.product.playlist"),
+          .init(id: "4", title: "Summarize", braveSystemImage: "leo.product.brave-leo"),
         ])
         ActionsList(actions: [
-          .init(id: "1", title: "All Settings", braveSystemImage: "leo.settings", handler: { _ in })
+          .init(id: "1", title: "All Settings", braveSystemImage: "leo.settings")
         ])
       }
       .padding()
