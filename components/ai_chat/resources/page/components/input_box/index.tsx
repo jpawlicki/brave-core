@@ -32,7 +32,7 @@ type Props = Pick<
 > &
   Pick<
     AIChatContext,
-    'isMobile' | 'hasAcceptedAgreement' | 'hasInitialHistory'
+    'isMobile' | 'hasAcceptedAgreement' | 'handleShowSoftKeyboard'
   >
 
 interface InputBoxProps {
@@ -44,6 +44,8 @@ function InputBox(props: InputBoxProps) {
   const onInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     props.context.setInputText(e.target.value)
   }
+
+  const querySubmitted = React.useRef(false)
 
   const handleSubmit = () => {
     querySubmitted.current = true
@@ -82,8 +84,6 @@ function InputBox(props: InputBoxProps) {
     }
   }
 
-  const querySubmitted = React.useRef(false)
-
   const maybeAutofocus = (node: HTMLTextAreaElement | null) => {
     if (!node) {
       return
@@ -95,7 +95,9 @@ function InputBox(props: InputBoxProps) {
     if (props.context.isMobile && props.context.hasAcceptedAgreement &&
       !props.context.hasInitialHistory && !querySubmitted.current) {
         node.focus()
-        getPageHandlerInstance().pageHandler.handleShowSoftKeyboard()
+        if (props.context.handleShowSoftKeyboard) {
+          props.context.handleShowSoftKeyboard();
+        }
     }
   }
 
