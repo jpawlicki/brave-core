@@ -6,7 +6,22 @@
 import SwiftUI
 import DesignSystem
 
+public struct FakeAction: Identifiable {
+  public var id: String
+  public var title: String
+  public var braveSystemImage: String
+}
+
+enum MenuActionResult {
+  case nothing
+  case reload
+}
+
+//public typealias ActionHandler = () -> Result
+
 struct BrowserMenu: View {
+  var action: (FakeAction) -> MenuActionResult
+
   var body: some View {
     ScrollView(.vertical) {
       VStack(spacing: 16) {
@@ -59,16 +74,16 @@ struct BrowserMenu: View {
 }
 
 private struct QuickActionsView: View {
-  var actions: [Action]
+  var actions: [FakeAction]
 
-  var visibleActions: [Action] {
+  var visibleActions: [FakeAction] {
     if actions.count > 5 {
       return Array(actions[0..<4])
     }
     return actions
   }
 
-  var menuActions: [Action] {
+  var menuActions: [FakeAction] {
     if actions.count <= 5 {
       return []
     }
@@ -140,8 +155,8 @@ private struct QuickActionsView: View {
 }
 
 private struct ActionsList: View {
-  var actions: [Action]
-  var additionalActions: [Action] = []
+  var actions: [FakeAction]
+  var additionalActions: [FakeAction] = []
 
   @State private var isAdditionalActionsVisible: Bool = false
   @Environment(\.pixelLength) private var pixelLength

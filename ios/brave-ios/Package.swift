@@ -420,7 +420,7 @@ var package = Package(
       dependencies: ["PlaylistUI", "Playlist", "Preferences", "Data", "TestHelpers"],
       resources: [.copy("Resources/Big_Buck_Bunny_360_10s_1MB.mp4")]
     ),
-    .target(name: "BrowserMenu", dependencies: ["DesignSystem", "BraveUI"]),
+    .target(name: "BrowserMenu", dependencies: ["DesignSystem", "BraveUI", "Preferences"]),
     .plugin(name: "IntentBuilderPlugin", capability: .buildTool()),
     .plugin(name: "LoggerPlugin", capability: .buildTool()),
     .plugin(
