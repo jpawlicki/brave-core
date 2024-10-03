@@ -100,16 +100,17 @@ AIChatUI::AIChatUI(content::WebUI* web_ui)
   untrusted_source->AddBoolean("isMobile", kIsMobile);
   untrusted_source->AddBoolean("isHistoryEnabled",
                                ai_chat::features::IsAIChatHistoryEnabled());
-  content::WebContents* chat_web_contents = GetChatWebContents();
-  size_t visible_conversation_history_size = 0;
-  if (chat_web_contents) {
-    ai_chat::AIChatTabHelper* active_chat_tab_helper =
-        ai_chat::AIChatTabHelper::FromWebContents(chat_web_contents);
-    visible_conversation_history_size =
-        active_chat_tab_helper->GetVisibleConversationHistory().size();
-  }
-  untrusted_source->AddBoolean("hasInitialHistory",
-                               visible_conversation_history_size != 0);
+  // content::WebContents* chat_web_contents = GetChatWebContents();
+  // size_t visible_conversation_history_size = 0;
+  // if (chat_web_contents) {
+  //   ai_chat::AIChatTabHelper* active_chat_tab_helper =
+  //       ai_chat::AIChatTabHelper::FromWebContents(chat_web_contents);
+  //   visible_conversation_history_size =
+  //       active_chat_tab_helper->GetVisibleConversationHistory().size();
+  // }
+  untrusted_source->AddBoolean(
+      "hasInitialHistory",
+      /*visible_conversation_history_size != 0*/ false);
 
   untrusted_source->AddBoolean(
       "hasUserDismissedPremiumPrompt",
@@ -158,7 +159,7 @@ content::WebContents* AIChatUI::GetChatWebContents() {
 }
 
 void AIChatUI::BindInterface(
-    mojo::PendingReceiver<ai_chat::mojom::PageHandler> receiver) {
+    mojo::PendingReceiver<ai_chat::mojom::AIChatUIHandler> receiver) {
   // We call ShowUI() before creating the PageHandler object so that
   // the WebContents is added to a Browser which we can get a reference
   // to and provide to the PageHandler.

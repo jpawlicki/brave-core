@@ -32,12 +32,13 @@ type Props = Pick<
 > &
   Pick<
     AIChatContext,
-    'isMobile' | 'hasAcceptedAgreement' | 'handleShowSoftKeyboard'
+    'isMobile' | 'hasAcceptedAgreement'
   >
 
 interface InputBoxProps {
   context: Props
   onFocusInputMobile?: () => unknown
+  maybeShowSoftKeyboard?: (querySubmitted: boolean) => unknown
 }
 
 function InputBox(props: InputBoxProps) {
@@ -89,15 +90,10 @@ function InputBox(props: InputBoxProps) {
       return
     }
 
-    if (props.context.selectedActionType) {
+    if (props.context.selectedActionType ||
+        props.maybeShowSoftKeyboard &&
+        props.maybeShowSoftKeyboard(querySubmitted.current)) {
       node.focus()
-    }
-    if (props.context.isMobile && props.context.hasAcceptedAgreement &&
-      !props.context.hasInitialHistory && !querySubmitted.current) {
-        node.focus()
-        if (props.context.handleShowSoftKeyboard) {
-          props.context.handleShowSoftKeyboard();
-        }
     }
   }
 

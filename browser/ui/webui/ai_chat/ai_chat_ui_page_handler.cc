@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "brave/browser/ai_chat/ai_chat_service_factory.h"
 #include "brave/browser/ui/side_panel/ai_chat/ai_chat_side_panel_utils.h"
@@ -93,7 +94,7 @@ void AIChatUIPageHandler::HandleVoiceRecognition(
 
 void AIChatUIPageHandler::HandleShowSoftKeyboard() {
 #if BUILDFLAG(IS_ANDROID)
-  ai_chat::HandleShowSoftKeyboard(web_contents());
+  ai_chat::HandleShowSoftKeyboard(owner_web_contents_.get());
 #endif
 }
 

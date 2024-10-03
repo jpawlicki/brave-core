@@ -358,6 +358,7 @@ const preview: Meta = {
         canShowPremiumPrompt: options.args.canShowPremiumPrompt,
         isMobile: options.args.isMobile,
         isHistoryEnabled: false,
+        hasInitialHistory: false,
         allActions: ACTIONS_LIST,
         goPremium: () => {},
         managePremium: () => {},

@@ -53,7 +53,7 @@ const defaultContext: AIChatContext = {
   dismissPremiumPrompt: () => {},
   userRefreshPremiumSession: () => {},
   onNewConversation: () => {},
-  onSelectConversationUuid: () => {}
+  onSelectConversationUuid: () => {},
 }
 
 export const AIChatReactContext =

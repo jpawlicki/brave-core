@@ -62,6 +62,7 @@ export interface ConversationContext extends CharCountContext {
   handleActionTypeClick: (actionType: mojom.ActionType) => void
   setIsToolsMenuOpen: (isOpen: boolean) => void
   handleVoiceRecognition?: () => void
+  handleShowSoftKeyboard?: () => void
   conversationHandler?: API.ConversationHandlerRemote
 }
 
@@ -464,6 +465,10 @@ export function ConversationContextProvider(
     aiChatContext.uiHandler?.handleVoiceRecognition(context.conversationUuid)
   }
 
+  const handleShowSoftKeyboard = () => {
+    aiChatContext.uiHandler?.handleShowSoftKeyboard()
+  }
+
   const store: ConversationContext = {
     ...context,
     actionList,
@@ -490,6 +495,7 @@ export function ConversationContextProvider(
     switchToBasicModel,
     setIsToolsMenuOpen: (isToolsMenuOpen) => setPartialContext({ isToolsMenuOpen }),
     handleVoiceRecognition,
+    handleShowSoftKeyboard,
     conversationHandler
   }
 
