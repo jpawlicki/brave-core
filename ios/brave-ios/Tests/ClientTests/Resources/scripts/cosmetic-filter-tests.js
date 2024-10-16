@@ -21,7 +21,8 @@
       'removedElement': results.removedElement,
       'styledElement': results.styledElement,
       'upwardInt': results.upwardInt,
-      'upwardSelector': results.upwardSelector
+      'upwardSelector': results.upwardSelector,
+      'hasTextDisplayIsNone': results.hasTextDisplayIsNone
     })
   }
 
@@ -39,7 +40,8 @@
       removedAttribute: false,
       styledElement: false,
       upwardInt: false,
-      upwardSelector: false
+      upwardSelector: false,
+      hasTextDisplayIsNone: false
     }
 
     elements.forEach((node) => {
@@ -75,6 +77,10 @@
 
       if (node.id === 'test-upward-selector') {
         results.upwardSelector = window.getComputedStyle(node).display === 'none'
+      }
+
+      if (node.id === 'test-has-text') {
+        results.hasTextDisplayIsNone = window.getComputedStyle(node).display === 'none'
       }
     })
 

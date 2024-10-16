@@ -32,6 +32,7 @@ final class ScriptExecutionTests: XCTestCase {
     let styledElement: Bool
     let upwardInt: Bool
     let upwardSelector: Bool
+    let hasTextDisplayIsNone: Bool
   }
 
   @MainActor func testSiteStateListenerScript() async throws {
@@ -257,6 +258,7 @@ final class ScriptExecutionTests: XCTestCase {
         "brave.com###test-style-element:style(background-color: red !important)",
         "brave.com###test-upward-int-target:upward(2)",
         "brave.com###test-upward-selector-target:upward(#test-upward-selector)",
+        "brave.com###test-has-text:has-text(hide me)",
       ].joined(separator: "\n")
     )
     let proceduralFilters = try engine.cosmeticFilterModel(
@@ -428,5 +430,6 @@ final class ScriptExecutionTests: XCTestCase {
     XCTAssertTrue(resultsAfterPump?.styledElement ?? false)
     XCTAssertTrue(resultsAfterPump?.upwardInt ?? false)
     XCTAssertTrue(resultsAfterPump?.upwardSelector ?? false)
+    XCTAssertTrue(resultsAfterPump?.hasTextDisplayIsNone ?? false)
   }
 }
