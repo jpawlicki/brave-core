@@ -1,10 +1,9 @@
 diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
-index b8347b579d849b74a7d5b376370750c74e2311ba..4a267c122b5104c928c1731aa9645828cbd33ae7 100644
+index de1a79fe79f5d13629b190f5cef9cdef553fb41a..043c7cbdcacbb0b11842fe730c178c0f4aefa447 100644
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -1222,3 +1222,4 @@ chrome_java_sources = [
-   "java/src/org/chromium/chrome/browser/webapps/WebappRegistry.java",
-   "java/src/org/chromium/chrome/browser/webshare/ShareServiceImplementationFactory.java",
- ]
+@@ -1231,3 +1231,4 @@ if (enable_screen_capture) {
+     "java/src/org/chromium/chrome/browser/media/MediaCapturePickerDialogBridge.java",
+   ]
+ }
 +chrome_java_sources -= ["java/src/org/chromium/chrome/browser/ntp/IncognitoNewTabPageView.java",]
-\ No newline at end of file
