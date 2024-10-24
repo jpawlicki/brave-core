@@ -7,7 +7,7 @@
 #include "brave/components/ai_chat/core/common/buildflags/buildflags.h"
 #include "brave/components/ai_rewriter/common/buildflags/buildflags.h"
 #include "brave/components/content_settings/renderer/brave_content_settings_agent_impl.h"
-#include "brave/components/web_discovery/common/buildflags/buildflags.h"
+#include "brave/components/web_discovery/buildflags/buildflags.h"
 #include "chrome/common/chrome_isolated_world_ids.h"
 #include "chrome/renderer/process_state.h"
 #include "components/dom_distiller/content/renderer/distillability_agent.h"

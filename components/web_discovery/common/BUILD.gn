@@ -8,11 +8,9 @@ import("//mojo/public/tools/bindings/mojom.gni")
 
 assert(enable_web_discovery_native)
 
-if (enable_web_discovery_native) {
-  mojom("mojom") {
-    sources = [ "web_discovery.mojom" ]
-    deps = [ "//mojo/public/mojom/base" ]
-  }
+mojom("mojom") {
+  sources = [ "web_discovery.mojom" ]
+  deps = [ "//mojo/public/mojom/base" ]
 }
 
 component("common") {

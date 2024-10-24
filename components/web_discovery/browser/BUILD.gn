@@ -19,6 +19,7 @@ component("browser") {
     "credential_signer.h",
     "hash_detection.cc",
     "hash_detection.h",
+    "hash_detection_matrix.h",
     "patterns.cc",
     "patterns.h",
     "payload_generator.cc",
@@ -58,20 +59,6 @@ component("browser") {
   ]
 }
 
-component("tab_helper") {
-  output_name = "web_discovery_tab_helper"
-  sources = [
-    "web_discovery_tab_helper.cc",
-    "web_discovery_tab_helper.h",
-  ]
-  deps = [
-    "//base",
-    "//brave/components/web_discovery/browser",
-    "//content/public/browser",
-    "//services/service_manager/public/cpp",
-  ]
-}
-
 source_set("unit_tests") {
   testonly = true
   sources = [
@@ -92,22 +79,4 @@ source_set("unit_tests") {
     "//services/network/public/cpp",
     "//testing/gtest",
   ]
-}
-
-source_set("browser_tests") {
-  testonly = true
-  sources = [ "content_scraper_browsertest.cc" ]
-  deps = [
-    ":browser",
-    "//base/test:test_support",
-    "//brave/components/constants",
-    "//brave/components/web_discovery/common",
-    "//brave/components/web_discovery/common:mojom",
-    "//chrome/test:test_support",
-    "//content/test:test_support",
-    "//net:test_support",
-    "//services/service_manager/public/cpp",
-    "//testing/gtest",
-  ]
-  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 }
