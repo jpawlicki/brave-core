@@ -59,6 +59,7 @@ std::string CreateJSONRequestBody(
   dict.Set("stream", is_sse_enabled);
   dict.Set("temperature", 0.7);
   dict.Set("model", model_options.model_request_name);
+  dict.Set("max_tokens", 4096);
 
   std::string json;
   base::JSONWriter::Write(dict, &json);
@@ -123,6 +124,7 @@ void OAIAPIClient::PerformRequest(
 
 void OAIAPIClient::OnQueryCompleted(GenerationCompletedCallback callback,
                                     APIRequestResult result) {
+  LOG(ERROR) << result.response_code();
   const bool success = result.Is2XXResponseCode();
   // Handle successful request
   if (success) {
@@ -158,6 +160,11 @@ void OAIAPIClient::OnQueryDataReceived(
     GenerationDataCallback callback,
     base::expected<base::Value, std::string> result) {
   if (!result.has_value() || !result->is_dict()) {
+    if (result.has_value()) {
+      LOG(ERROR) << result.value();
+    } else {
+      LOG(ERROR) << result.error();
+    }
     return;
   }
 

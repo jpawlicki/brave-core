@@ -51,8 +51,11 @@ class ConversationHandler : public mojom::ConversationHandler,
   // content should be fetched again, but some pages are known to be static
   // during their lifetime and may have expensive content fetching, e.g. videos
   // with transcripts fetched over the network.
-  using GetPageContentCallback = base::OnceCallback<
-      void(std::string content, bool is_video, std::string invalidation_token)>;
+  using GetPageContentCallback =
+      base::OnceCallback<void(std::string content,
+                              bool is_video,
+                              std::string invalidation_token,
+                              std::string screenshot)>;
   using GeneratedTextCallback =
       base::RepeatingCallback<void(const std::string& text)>;
 
@@ -171,7 +174,8 @@ class ConversationHandler : public mojom::ConversationHandler,
   // it's a navigation, the AssociatedContentDelegate will set itself to a new
   // ConversationHandler.
   void OnAssociatedContentDestroyed(std::string last_text_content,
-                                    bool is_video);
+                                    bool is_video,
+                                    std::string last_screenshot);
 
   // This can be called multiple times, e.g. when the user navigates back to
   // content, this conversation can be reunited with the delegate.
@@ -292,13 +296,15 @@ class ConversationHandler : public mojom::ConversationHandler,
   void PerformAssistantGeneration(const std::string& input,
                                   std::string page_content = "",
                                   bool is_video = false,
-                                  std::string invalidation_token = "");
+                                  std::string invalidation_token = "",
+                                  std::string screenshot = "");
   void SetAPIError(const mojom::APIError& error);
   void UpdateOrCreateLastAssistantEntry(mojom::ConversationEntryEventPtr text);
   void MaybeSeedOrClearSuggestions();
   void PerformQuestionGeneration(std::string page_content,
                                  bool is_video,
-                                 std::string invalidation_token);
+                                 std::string invalidation_token,
+                                 std::string screenshot);
 
   void OnGetStagedEntriesFromContent(
       const std::optional<std::vector<SearchQuerySummary>>& entries);
@@ -311,12 +317,14 @@ class ConversationHandler : public mojom::ConversationHandler,
   void OnGeneratePageContentComplete(GetPageContentCallback callback,
                                      std::string contents_text,
                                      bool is_video,
-                                     std::string invalidation_token);
+                                     std::string invalidation_token,
+                                     std::string screenshot);
   void OnGetRefinedPageContent(
       const std::string& input,
       EngineConsumer::GenerationDataCallback data_received_callback,
       EngineConsumer::GenerationCompletedCallback data_completed_callback,
       std::string page_content,
+      std::string screenshot,
       bool is_video,
       base::expected<std::string, std::string> refined_page_content);
   void OnEngineCompletionDataReceived(mojom::ConversationEntryEventPtr result);

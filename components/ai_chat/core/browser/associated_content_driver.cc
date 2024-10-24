@@ -64,7 +64,7 @@ AssociatedContentDriver::~AssociatedContentDriver() {
   for (auto& conversation : associated_conversations_) {
     if (conversation) {
       conversation->OnAssociatedContentDestroyed(cached_text_content_,
-                                                 is_video_);
+                                                 is_video_, cache_screenshot_);
     }
   }
 }
@@ -136,14 +136,15 @@ void AssociatedContentDriver::OnExistingGeneratePageContentComplete(
     return;
   }
   std::move(callback).Run(cached_text_content_, is_video_,
-                          content_invalidation_token_);
+                          content_invalidation_token_, cache_screenshot_);
 }
 
 void AssociatedContentDriver::OnGeneratePageContentComplete(
     int64_t navigation_id,
     std::string contents_text,
     bool is_video,
-    std::string invalidation_token) {
+    std::string invalidation_token,
+    std::string screenshot) {
   DVLOG(1) << "OnGeneratePageContentComplete";
   DVLOG(4) << "Contents(is_video=" << is_video
            << ", invalidation_token=" << invalidation_token
@@ -161,6 +162,7 @@ void AssociatedContentDriver::OnGeneratePageContentComplete(
     // if the content fetcher knows the content won't have changed and the fetch
     // operation is expensive (e.g. network).
     cached_text_content_ = contents_text;
+    cache_screenshot_ = std::move(screenshot);
     content_invalidation_token_ = invalidation_token;
     if (contents_text.empty()) {
       DVLOG(1) << __func__ << ": No data";
@@ -275,7 +277,8 @@ void AssociatedContentDriver::OnFaviconImageDataChanged() {
 void AssociatedContentDriver::OnNewPage(int64_t navigation_id) {
   // Tell the associated_conversations_ that we're breaking up
   for (auto& conversation : associated_conversations_) {
-    conversation->OnAssociatedContentDestroyed(cached_text_content_, is_video_);
+    conversation->OnAssociatedContentDestroyed(cached_text_content_, is_video_,
+                                               cache_screenshot_);
   }
   // Tell the observer how to find the next conversation
   for (auto& observer : observers_) {

@@ -253,7 +253,8 @@ void ConversationHandler::InitEngine() {
 
 void ConversationHandler::OnAssociatedContentDestroyed(
     std::string last_text_content,
-    bool is_video) {
+    bool is_video,
+    std::string last_screenshot) {
   // The associated content delegate is destroyed, so we should not try to
   // fetch. It may be populated later, e.g. through back navigation.
   // If this conversation is allowed to be associated with content, we can keep
@@ -268,6 +269,7 @@ void ConversationHandler::OnAssociatedContentDestroyed(
     // article text.
     auto archive_content = std::make_unique<AssociatedArchiveContent>(
         associated_content_info_->url.value_or(GURL()), last_text_content,
+        last_screenshot,
         base::UTF8ToUTF16(associated_content_info_->title.value_or("")),
         is_video);
     associated_content_delegate_ = archive_content->GetWeakPtr();
@@ -732,7 +734,8 @@ void ConversationHandler::GenerateQuestions() {
 void ConversationHandler::PerformQuestionGeneration(
     std::string page_content,
     bool is_video,
-    std::string invalidation_token) {
+    std::string invalidation_token,
+    std::string screenshot) {
   engine_->GenerateQuestionSuggestions(
       is_video, page_content, selected_language_,
       base::BindOnce(&ConversationHandler::OnSuggestedQuestionsResponse,
@@ -881,7 +884,8 @@ void ConversationHandler::PerformAssistantGeneration(
     const std::string& input,
     std::string page_content /* = "" */,
     bool is_video /* = false */,
-    std::string invalidation_token /* = "" */) {
+    std::string invalidation_token /* = "" */,
+    std::string screenshot /* = "" */) {
   auto data_received_callback =
       base::BindRepeating(&ConversationHandler::OnEngineCompletionDataReceived,
                           weak_ptr_factory_.GetWeakPtr());
@@ -905,7 +909,7 @@ void ConversationHandler::PerformAssistantGeneration(
         &ConversationHandler::OnGetRefinedPageContent,
         weak_ptr_factory_.GetWeakPtr(), input,
         std::move(data_received_callback), std::move(data_completed_callback),
-        page_content, is_video);
+        page_content, std::move(screenshot), is_video);
 
     associated_content_delegate_->GetTopSimilarityWithPromptTilContextLimit(
         input, page_content, max_content_length,
@@ -924,9 +928,10 @@ void ConversationHandler::PerformAssistantGeneration(
     OnAssociatedContentInfoChanged();
   }
 
-  engine_->GenerateAssistantResponse(
-      is_video, page_content, chat_history_, input, selected_language_,
-      std::move(data_received_callback), std::move(data_completed_callback));
+  engine_->GenerateAssistantResponse(is_video, page_content, screenshot,
+                                     chat_history_, input, selected_language_,
+                                     std::move(data_received_callback),
+                                     std::move(data_completed_callback));
 }
 
 void ConversationHandler::SetAPIError(const mojom::APIError& error) {
@@ -1118,10 +1123,12 @@ void ConversationHandler::OnGeneratePageContentComplete(
     GetPageContentCallback callback,
     std::string contents_text,
     bool is_video,
-    std::string invalidation_token) {
+    std::string invalidation_token,
+    std::string screenshot) {
   engine_->SanitizeInput(contents_text);
 
-  std::move(callback).Run(contents_text, is_video, invalidation_token);
+  std::move(callback).Run(contents_text, is_video, invalidation_token,
+                          std::move(screenshot));
 
   // Content-used percentage might have changed
   OnAssociatedContentInfoChanged();
@@ -1132,6 +1139,7 @@ void ConversationHandler::OnGetRefinedPageContent(
     EngineConsumer::GenerationDataCallback data_received_callback,
     EngineConsumer::GenerationCompletedCallback data_completed_callback,
     std::string page_content,
+    std::string screenshot,
     bool is_video,
     base::expected<std::string, std::string> refined_page_content) {
   std::string page_content_to_use = std::move(page_content);
@@ -1147,9 +1155,10 @@ void ConversationHandler::OnGetRefinedPageContent(
       OnAssociatedContentInfoChanged();
     }
   }
-  engine_->GenerateAssistantResponse(
-      is_video, page_content_to_use, chat_history_, input, selected_language_,
-      std::move(data_received_callback), std::move(data_completed_callback));
+  engine_->GenerateAssistantResponse(is_video, page_content_to_use, screenshot,
+                                     chat_history_, input, selected_language_,
+                                     std::move(data_received_callback),
+                                     std::move(data_completed_callback));
 }
 
 void ConversationHandler::OnEngineCompletionDataReceived(

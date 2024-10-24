@@ -21,6 +21,7 @@
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/types/expected.h"
+#include "base/values.h"
 #include "brave/components/ai_chat/core/browser/constants.h"
 #include "brave/components/ai_chat/core/browser/engine/engine_consumer.h"
 #include "brave/components/ai_chat/core/browser/engine/remote_completion_client.h"
@@ -47,6 +48,7 @@ using mojom::ConversationTurn;
 base::Value::List BuildMessages(
     const mojom::CustomModelOptions& model_options,
     const std::string& page_content,
+    const std::string& screenshot,
     const std::optional<std::string>& selected_text,
     const bool& is_video,
     const EngineConsumer::ConversationHistory& conversation_history) {
@@ -77,6 +79,7 @@ base::Value::List BuildMessages(
     messages.Append(std::move(message));
   }
 
+#if 0
   // Append page content, if exists
   if (!page_content.empty()) {
     const std::string prompt_segment_article = base::ReplaceStringPlaceholders(
@@ -88,6 +91,28 @@ base::Value::List BuildMessages(
     base::Value::Dict message;
     message.Set("role", "user");
     message.Set("content", prompt_segment_article);
+    messages.Append(std::move(message));
+  }
+#endif
+  if (!screenshot.empty()) {
+    LOG(ERROR) << "encoding chars=" << screenshot.size();
+    base::Value::Dict message;
+    message.Set("role", "user");
+    base::Value::List content;
+    base::Value::Dict user_message;
+    user_message.Set("type", "text");
+    user_message.Set("text", "This image is also page content");
+    content.Append(std::move(user_message));
+    base::Value::Dict image;
+    constexpr char kImageUrl[] = R"(data:image/png;base64,$1)";
+    image.Set("type", "image_url");
+    const std::string image_url =
+        base::ReplaceStringPlaceholders(kImageUrl, {screenshot}, nullptr);
+    base::Value::Dict image_url_dict;
+    image_url_dict.Set("url", image_url);
+    image.Set("image_url", std::move(image_url_dict));
+    content.Append(std::move(image));
+    message.Set("content", std::move(content));
     messages.Append(std::move(message));
   }
 
@@ -245,6 +270,7 @@ void EngineConsumerOAIRemote::OnGenerateQuestionSuggestionsResponse(
 void EngineConsumerOAIRemote::GenerateAssistantResponse(
     const bool& is_video,
     const std::string& page_content,
+    const std::string& screenshot,
     const ConversationHistory& conversation_history,
     const std::string& human_input,
     const std::string& selected_language,
@@ -267,8 +293,8 @@ void EngineConsumerOAIRemote::GenerateAssistantResponse(
                        : max_associated_content_length_);
 
   base::Value::List messages =
-      BuildMessages(model_options_, truncated_page_content, selected_text,
-                    is_video, conversation_history);
+      BuildMessages(model_options_, truncated_page_content, screenshot,
+                    selected_text, is_video, conversation_history);
   api_->PerformRequest(model_options_, std::move(messages),
                        std::move(data_received_callback),
                        std::move(completed_callback));

@@ -10,11 +10,13 @@
 #include <string>
 #include <utility>
 
+#include "base/base64.h"
 #include "base/containers/fixed_flat_set.h"
 #include "base/functional/bind.h"
 #include "base/memory/weak_ptr.h"
 #include "base/ranges/algorithm.h"
 #include "base/strings/string_util.h"
+#include "base/task/thread_pool.h"
 #include "brave/components/ai_chat/content/browser/page_content_fetcher.h"
 #include "brave/components/ai_chat/content/browser/pdf_utils.h"
 #include "brave/components/ai_chat/core/browser/associated_content_driver.h"
@@ -30,15 +32,78 @@
 #include "content/public/browser/permission_controller.h"
 #include "content/public/browser/permission_request_description.h"
 #include "content/public/browser/permission_result.h"
+#include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/scoped_accessibility_mode.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
+#include "mojo/public/cpp/bindings/callback_helpers.h"
 #include "pdf/buildflags.h"
 #include "ui/accessibility/ax_mode.h"
 #include "ui/accessibility/ax_updates_and_events.h"
 #include "ui/base/l10n/l10n_util.h"
+#include "ui/gfx/codec/png_codec.h"
+#include "ui/snapshot/snapshot.h"
 
 namespace ai_chat {
+
+namespace {
+std::string EncodePngOnBackgroundThread(const SkBitmap& bitmap) {
+  std::vector<unsigned char> data;
+  bool encoded = gfx::PNGCodec::EncodeBGRASkBitmap(bitmap, false, &data);
+  if (!encoded) {
+    return "";
+  }
+  return base::Base64Encode(data);
+}
+
+void OnEncodePng(AIChatTabHelper::GetPageContentCallback callback,
+                 std::string contents_text,
+                 bool is_video,
+                 std::string invalidation_token,
+                 std::string base64_result) {
+  if (base64_result.empty()) {
+    return std::move(callback).Run(contents_text, is_video,
+                                   std::move(invalidation_token), "");
+  }
+
+  LOG(ERROR) << base64_result.size();
+  LOG(ERROR) << base64_result;
+  std::move(callback).Run(std::move(contents_text), is_video,
+                          std::move(invalidation_token), base64_result);
+}
+
+void OnGetTabScreenshot(AIChatTabHelper::GetPageContentCallback callback,
+                        std::string contents_text,
+                        bool is_video,
+                        std::string invalidation_token,
+                        const SkBitmap& bitmap) {
+  base::ThreadPool::PostTaskAndReplyWithResult(
+      FROM_HERE,
+      {base::MayBlock(), base::TaskPriority::BEST_EFFORT,
+       base::TaskShutdownBehavior::CONTINUE_ON_SHUTDOWN},
+      base::BindOnce(&EncodePngOnBackgroundThread, base::OwnedRef(bitmap)),
+      base::BindOnce(&OnEncodePng, std::move(callback),
+                     std::move(contents_text), is_video,
+                     std::move(invalidation_token)));
+}
+
+void OnGetSnapshot(
+    AIChatTabHelper::GetPageContentCallback callback,
+    std::string contents_text,
+    bool is_video,
+    std::string invalidation_token,
+    gfx::Image snapshot) {
+  if (snapshot.IsEmpty()) {
+    std::move(callback).Run(std::move(contents_text), is_video,
+                           std::move(invalidation_token), "");
+    return;
+  }
+
+  OnGetTabScreenshot(std::move(callback), std::move(contents_text), is_video,
+                    std::move(invalidation_token), *snapshot.ToSkBitmap());
+}
+
+}  // namespace
 
 AIChatTabHelper::PDFA11yInfoLoadObserver::PDFA11yInfoLoadObserver(
     content::WebContents* web_contents,
@@ -282,6 +347,7 @@ void AIChatTabHelper::GetPageContent(GetPageContentCallback callback,
       return;
     }
   }
+
   page_content_fetcher_delegate_->FetchPageContent(
       invalidation_token,
       base::BindOnce(&AIChatTabHelper::OnFetchPageContentComplete,
@@ -310,14 +376,34 @@ void AIChatTabHelper::OnFetchPageContentComplete(
     // When print preview extraction isn't available, return empty content
     DVLOG(1) << "no fallback available";
   }
-  std::move(callback).Run(std::move(content), is_video,
-                          std::move(invalidation_token));
+
+  content::RenderWidgetHostView* const view =
+      web_contents() ? web_contents()->GetRenderWidgetHostView() : nullptr;
+  if (!view) {
+    return;
+  }
+  gfx::Rect snapshot_bounds(view->GetViewBounds().size());
+  ui::GrabViewSnapshot(view->GetNativeView(), snapshot_bounds,
+                       base::BindOnce(&OnGetSnapshot, std::move(callback),
+                                      std::move(content), is_video,
+                                      std::move(invalidation_token)));
+#if 0
+  SkBitmap empty;
+  view->CopyFromSurface(
+      gfx::Rect(),  // Copy entire surface area.
+      gfx::Size(),  // Result contains device-level detail.
+      mojo::WrapCallbackWithDefaultInvokeIfNotRun(
+          base::BindOnce(&OnGetTabScreenshot, std::move(callback),
+                         std::move(content), is_video,
+                         std::move(invalidation_token)),
+          base::OwnedRef(empty)));
+#endif
 }
 
 void AIChatTabHelper::SetPendingGetContentCallback(
     GetPageContentCallback callback) {
   if (pending_get_page_content_callback_) {
-    std::move(pending_get_page_content_callback_).Run("", false, "");
+    std::move(pending_get_page_content_callback_).Run("", false, "", "");
   }
   pending_get_page_content_callback_ = std::move(callback);
 }
@@ -346,7 +432,7 @@ void AIChatTabHelper::OnExtractPrintPreviewContentComplete(
     GetPageContentCallback callback,
     std::string content) {
   // Invalidation token not applicable for print preview OCR
-  std::move(callback).Run(std::move(content), false, "");
+  std::move(callback).Run(std::move(content), false, "", "");
 }
 
 std::u16string AIChatTabHelper::GetPageTitle() const {
@@ -357,7 +443,7 @@ void AIChatTabHelper::OnNewPage(int64_t navigation_id) {
   DVLOG(3) << __func__ << " id: " << navigation_id;
   AssociatedContentDriver::OnNewPage(navigation_id);
   if (pending_get_page_content_callback_) {
-    std::move(pending_get_page_content_callback_).Run("", false, "");
+    std::move(pending_get_page_content_callback_).Run("", false, "", "");
   }
 }
 
