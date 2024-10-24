@@ -1907,6 +1907,19 @@ Your Brave account may have other forms of browsing history like searches and ac
       <message name="IDS_SAFETY_HUB_PASSWORD_CHECK_TIME_RECENTLY" desc="Summary for the password check row in the Safety Check page indicating that the checkup was ran recently for the passwords in the user's Brave account.">
         Recently checked passwords saved to <ph name="USERNAME">%1$s<ex>elisa.becket@gmail.com</ex></ph>
       </message>
+      <message name="IDS_SAFETY_HUB_REUSED_WEAK_PASSWORDS_TITLE" desc="Title for the password hub row in the Safety Check page indicating that the checkup found reused or/and weak passwords.">
+        Strengthen your passwords
+      </message>
+      <message name="IDS_SAFETY_HUB_WEAK_PASSWORDS_SUMMARY" desc="Summary for the password hub row in the Safety Check page indicating that the checkup found weak passwords and that the user should improve them.">
+        {NUM_PASSWORDS, plural,
+        =1 {Brave found a weak password that you could improve}
+        other {Brave found # weak passwords that you could improve}}
+      </message>
+      <message name="IDS_SAFETY_HUB_REUSED_PASSWORDS_SUMMARY" desc="Summary for the password hub row in the Safety Check page indicating that the checkup found reused passwords and that the user should improve them.">
+        {NUM_PASSWORDS, plural,
+        =1 {Brave found a reused password that you could improve}
+        other {Brave found # reused passwords that you could improve}}
+      </message>
 
        <!-- Safe Browsing preferences -->
       <message name="IDS_PREFS_SAFE_BROWSING_TITLE" desc="Title for the Safe Browsing preferences. [CHAR_LIMIT=32]">
