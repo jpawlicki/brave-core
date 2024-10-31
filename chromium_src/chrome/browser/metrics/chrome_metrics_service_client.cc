@@ -16,3 +16,9 @@ void ChromeMetricsServiceClient::RegisterMetricsServiceProviders() {
 void ChromeMetricsServiceClient::RegisterUKMProviders() {
   // Do nothing.
 }
+
+ChromeMetricsServiceClient::ChromeMetricsServiceClient(
+    metrics::MetricsStateManager* state_manager,
+    variations::SyntheticTrialRegistry* synthetic_trial_registry)
+    : ChromeMetricsServiceClient_ChromiumImpl(state_manager,
+                                              synthetic_trial_registry) {}
