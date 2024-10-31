@@ -9,6 +9,12 @@
 #include "src/chrome/browser/metrics/chrome_metrics_service_client.cc"
 #undef ChromeMetricsServiceClient
 
+ChromeMetricsServiceClient::ChromeMetricsServiceClient(
+    metrics::MetricsStateManager* state_manager,
+    variations::SyntheticTrialRegistry* synthetic_trial_registry)
+    : ChromeMetricsServiceClient_ChromiumImpl(state_manager,
+                                              synthetic_trial_registry) {}
+
 void ChromeMetricsServiceClient::RegisterMetricsServiceProviders() {
   // Do nothing.
 }
@@ -16,9 +22,3 @@ void ChromeMetricsServiceClient::RegisterMetricsServiceProviders() {
 void ChromeMetricsServiceClient::RegisterUKMProviders() {
   // Do nothing.
 }
-
-ChromeMetricsServiceClient::ChromeMetricsServiceClient(
-    metrics::MetricsStateManager* state_manager,
-    variations::SyntheticTrialRegistry* synthetic_trial_registry)
-    : ChromeMetricsServiceClient_ChromiumImpl(state_manager,
-                                              synthetic_trial_registry) {}

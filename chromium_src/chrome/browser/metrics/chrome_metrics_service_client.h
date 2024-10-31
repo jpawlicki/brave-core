@@ -14,19 +14,13 @@
 class ChromeMetricsServiceClient
     : public ChromeMetricsServiceClient_ChromiumImpl {
  public:
-  void RegisterMetricsServiceProviders() override;
-  void RegisterUKMProviders() override;
-
   ChromeMetricsServiceClient(
       metrics::MetricsStateManager* state_manager,
       variations::SyntheticTrialRegistry* synthetic_trial_registry);
 
  private:
-  // TODO: remove?
-  friend class ChromeMetricsServiceClientTest;
-  friend class ChromeMetricsServiceClientTestIgnoredForAppMetrics;
-  friend class ChromeMetricsServiceClientTestWithoutUKMProviders;
-  FRIEND_TEST_ALL_PREFIXES(ChromeMetricsServiceClientTest, IsWebstoreExtension);
+  void RegisterMetricsServiceProviders() override;
+  void RegisterUKMProviders() override;
 };
 
 #endif  // BRAVE_CHROMIUM_SRC_CHROME_BROWSER_METRICS_CHROME_METRICS_SERVICE_CLIENT_H_
