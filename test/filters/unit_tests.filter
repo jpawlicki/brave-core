@@ -1067,3 +1067,7 @@
 -WebUsbServiceImplTest.*
 -WellKnownChangePasswordNavigationThrottleTest.*
 -ZipFileInstallerTest.*
+
+# This test fails because we disable most chromium metrics providers
+ChromeMetricsServiceClientTest.TestRegisterMetricsServiceProviders
+ChromeMetricsServiceClientTest.TestRegisterUKMProviders
