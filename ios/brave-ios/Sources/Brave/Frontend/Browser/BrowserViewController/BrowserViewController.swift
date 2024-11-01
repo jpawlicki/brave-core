@@ -493,6 +493,7 @@ public class BrowserViewController: UIViewController {
     Preferences.NewTabPage.backgroundMediaTypeRaw.observe(from: self)
     ShieldPreferences.blockAdsAndTrackingLevelRaw.observe(from: self)
     Preferences.Privacy.screenTimeEnabled.observe(from: self)
+    Preferences.Translate.translateEnabled.observe(from: self)
 
     pageZoomListener = NotificationCenter.default.addObserver(
       forName: PageZoomView.notificationName,
@@ -3404,6 +3405,11 @@ extension BrowserViewController: PreferencesObserver {
         screenTimeViewController?.suppressUsageRecording = true
         screenTimeViewController = nil
       }
+    case Preferences.Translate.translateEnabled.key:
+      tabManager.selectedTab?.setScripts(scripts: [
+        .braveTranslate: Preferences.Translate.translateEnabled.value
+      ])
+      tabManager.reloadSelectedTab()
     default:
       Logger.module.debug(
         "Received a preference change for an unknown key: \(key, privacy: .public) on \(type(of: self), privacy: .public)"

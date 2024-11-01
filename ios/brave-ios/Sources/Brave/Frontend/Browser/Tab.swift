@@ -533,6 +533,7 @@ class Tab: NSObject {
         .mediaBackgroundPlay: Preferences.General.mediaAutoBackgrounding.value,
         .nightMode: Preferences.General.nightModeEnabled.value,
         .playlistMediaSource: Preferences.Playlist.webMediaSourceCompatibility.value,
+        .braveTranslate: Preferences.Translate.translateEnabled.value,
       ]
 
       userScripts = Set(scriptPreferences.filter({ $0.value }).map({ $0.key }))

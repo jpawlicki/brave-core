@@ -23,7 +23,6 @@ class UserScriptManager {
       .faviconFetcher,
       .rewardsReporting,
       .resourceDownloader,
-      .braveTranslate,
       .nightMode,
     ]
 
@@ -182,7 +181,8 @@ class UserScriptManager {
           ? YoutubeQualityScriptHandler.userScript : nil
       case .braveLeoAIChat:
         return Preferences.UserScript.leo.value ? BraveLeoScriptHandler.userScript : nil
-      case .braveTranslate: return BraveTranslateScriptHandler.userScript
+      case .braveTranslate:
+        return Preferences.UserScript.translate.value ? BraveTranslateScriptHandler.userScript : nil
       }
     }
 
