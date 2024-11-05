@@ -388,9 +388,10 @@ void ConversationHandler::RateMessage(bool is_liked,
     base::span<const mojom::ConversationTurnPtr> history_slice =
         base::make_span(history).first(current_turn_id);
 
-    feedback_api_->SendRating(
-        is_liked, ai_chat_service_->IsPremiumStatus(), history_slice,
-        model.options->get_leo_model_options()->name, std::move(on_complete));
+    feedback_api_->SendRating(is_liked, ai_chat_service_->IsPremiumStatus(),
+                              history_slice,
+                              model.options->get_leo_model_options()->name,
+                              selected_language_, std::move(on_complete));
 
     return;
   }
@@ -425,7 +426,7 @@ void ConversationHandler::SendFeedback(const std::string& category,
                               (send_hostname && page_url.SchemeIsHTTPOrHTTPS())
                                   ? std::optional<std::string>(page_url.host())
                                   : std::nullopt,
-                              std::move(on_complete));
+                              selected_language_, std::move(on_complete));
 }
 
 void ConversationHandler::GetConversationUuid(
