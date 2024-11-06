@@ -32,11 +32,6 @@ namespace {
 
 const int kRefreshP3AFrequencyHours = 24;
 const int kActiveAccountBuckets[] = {0, 1, 2, 3, 7};
-const char* kTimePrefsToMigrateToLocalState[] = {kBraveWalletLastUnlockTime,
-                                                 kBraveWalletP3AFirstUnlockTime,
-                                                 kBraveWalletP3ALastUnlockTime};
-const char* kTimePrefsToRemove[] = {kBraveWalletP3AFirstReportTimeDeprecated,
-                                    kBraveWalletP3ALastReportTimeDeprecated};
 const int kNFTCountBuckets[] = {0, 4, 20};
 constexpr base::TimeDelta kOnboardingRecordDelay = base::Seconds(120);
 
@@ -61,8 +56,6 @@ BraveWalletP3A::BraveWalletP3A(BraveWalletService* wallet_service,
       local_state_(local_state) {
   DCHECK(profile_prefs);
   DCHECK(local_state);
-
-  MigrateUsageProfilePrefsToLocalState();
 
   RecordInitialBraveWalletP3AState();
   AddObservers();
@@ -353,33 +346,6 @@ void BraveWalletP3A::ReportNftDiscoverySetting() {
         kBraveWalletNFTDiscoveryEnabledHistogramName,
         profile_prefs_->GetBoolean(kBraveWalletNftDiscoveryEnabled));
   }
-}
-
-// TODO(djandries): remove pref migration around April 2024
-void BraveWalletP3A::MigrateUsageProfilePrefsToLocalState() {
-  for (const char* pref_name : kTimePrefsToMigrateToLocalState) {
-    if (local_state_->GetTime(pref_name).is_null()) {
-      base::Time profile_time = profile_prefs_->GetTime(pref_name);
-      if (!profile_time.is_null()) {
-        local_state_->SetTime(pref_name, profile_time);
-        profile_prefs_->ClearPref(pref_name);
-      }
-    }
-  }
-  for (const char* pref_name : kTimePrefsToRemove) {
-    local_state_->ClearPref(pref_name);
-    profile_prefs_->ClearPref(pref_name);
-  }
-  if (!local_state_->GetBoolean(kBraveWalletP3AUsedSecondDay)) {
-    bool profile_used_second_day =
-        profile_prefs_->GetBoolean(kBraveWalletP3AUsedSecondDay);
-    if (profile_used_second_day) {
-      local_state_->SetBoolean(kBraveWalletP3AUsedSecondDay, true);
-      profile_prefs_->ClearPref(kBraveWalletP3AUsedSecondDay);
-    }
-  }
-  local_state_->ClearPref(kBraveWalletP3AWeeklyStorageDeprecated);
-  profile_prefs_->ClearPref(kBraveWalletP3AWeeklyStorageDeprecated);
 }
 
 void BraveWalletP3A::OnUpdateTimerFired() {
