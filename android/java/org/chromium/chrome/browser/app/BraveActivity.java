@@ -101,6 +101,7 @@ import org.chromium.chrome.browser.DormantUsersEngagementDialogFragment;
 import org.chromium.chrome.browser.IntentHandler;
 import org.chromium.chrome.browser.InternetConnection;
 import org.chromium.chrome.browser.LaunchIntentDispatcher;
+import org.chromium.chrome.browser.OpenYtInBraveDialogFragment;
 import org.chromium.chrome.browser.app.domain.WalletModel;
 import org.chromium.chrome.browser.billing.InAppPurchaseWrapper;
 import org.chromium.chrome.browser.billing.PurchaseModel;
@@ -1276,6 +1277,12 @@ public abstract class BraveActivity extends ChromeActivity
                                 .readLong(BravePreferenceKeys.BRAVE_IN_APP_UPDATE_TIMING, 0)) {
             checkAppUpdate();
         }
+
+        if (!isFirstInstall
+                && !BravePrefServiceBridge.getInstance().getPlayYTVideoInBrowserEnabled()) {
+            openYtInBraveDialog();
+        }
+
         new KeyboardVisibilityHelper(BraveActivity.this, BraveActivity.this);
     }
 
@@ -2018,6 +2025,13 @@ public abstract class BraveActivity extends ChromeActivity
                 new CrossPromotionalModalDialogFragment();
         mCrossPromotionalModalDialogFragment.show(
                 getSupportFragmentManager(), "CrossPromotionalModalDialogFragment");
+    }
+
+    private void openYtInBraveDialog() {
+        OpenYtInBraveDialogFragment mOpenYtInBraveDialogFragment =
+                new OpenYtInBraveDialogFragment();
+        mOpenYtInBraveDialogFragment.show(
+                getSupportFragmentManager(), "OpenYtInBraveDialogFragment");
     }
 
     public void showDormantUsersEngagementDialog(String notificationType) {
