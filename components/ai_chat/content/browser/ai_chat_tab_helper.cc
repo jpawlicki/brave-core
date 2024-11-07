@@ -17,6 +17,7 @@
 #include "base/ranges/algorithm.h"
 #include "base/strings/string_util.h"
 #include "base/task/thread_pool.h"
+#include "brave/components/ai_chat/content/browser/full_screenshot_client.h"
 #include "brave/components/ai_chat/content/browser/page_content_fetcher.h"
 #include "brave/components/ai_chat/content/browser/pdf_utils.h"
 #include "brave/components/ai_chat/core/browser/associated_content_driver.h"
@@ -46,6 +47,7 @@
 
 namespace ai_chat {
 
+#if 0
 namespace {
 std::string EncodePngOnBackgroundThread(const SkBitmap& bitmap) {
   std::vector<unsigned char> data;
@@ -66,8 +68,10 @@ void OnEncodePng(AIChatTabHelper::GetPageContentCallback callback,
                                    std::move(invalidation_token), "");
   }
 
+#if 0
   LOG(ERROR) << base64_result.size();
   LOG(ERROR) << base64_result;
+#endif
   std::move(callback).Run(std::move(contents_text), is_video,
                           std::move(invalidation_token), base64_result);
 }
@@ -104,6 +108,7 @@ void OnGetSnapshot(
 }
 
 }  // namespace
+#endif
 
 AIChatTabHelper::PDFA11yInfoLoadObserver::PDFA11yInfoLoadObserver(
     content::WebContents* web_contents,
@@ -377,6 +382,37 @@ void AIChatTabHelper::OnFetchPageContentComplete(
     DVLOG(1) << "no fallback available";
   }
 
+  full_screenshot_client_.Reset();
+#if 0
+[51750:33283:1107/134616.948169:FATAL:browser_thread_impl.cc(300)] Check failed: checker.CalledOnValidBrowserThread(thread_identifier). Must be called on Chrome_UIThread; actually called on ThreadPoolBackgroundWorker.
+0   libbase.dylib                       0x00000001025f6da2 base::debug::CollectStackTrace(base::span<void const*, 18446744073709551615ul, void const**>) + 18
+1   libbase.dylib                       0x00000001025d7cea base::debug::StackTrace::StackTrace(unsigned long) + 106
+2   libbase.dylib                       0x00000001024b518e logging::LogMessage::Flush() + 190
+3   libbase.dylib                       0x00000001024b505d logging::LogMessage::~LogMessage() + 29
+4   libbase.dylib                       0x000000010248f7ef logging::(anonymous namespace)::DCheckLogMessage::~DCheckLogMessage() + 111
+5   libbase.dylib                       0x000000010248f84e logging::(anonymous namespace)::DCheckLogMessage::~DCheckLogMessage() + 14
+6   libbase.dylib                       0x000000010248f1c3 logging::CheckError::~CheckError() + 35
+7   libbase.dylib                       0x000000010248f219 logging::CheckError::~CheckError() + 9
+8   libcontent.dylib                    0x0000000120d078e5 content::internal::ScopedValidateBrowserThreadDebugChecker::ScopedValidateBrowserThreadDebugChecker(content::BrowserThread::ID) + 165
+9   libcontent.dylib                    0x0000000120dc5c75 content::DevToolsAgentHostImpl::DevToolsAgentHostImpl(std::__Cr::basic_string<char, std::__Cr::char_traits<char>, std::__Cr::allocator<char>> const&) + 229
+10  libcontent.dylib                    0x0000000120ecab99 content::RenderFrameDevToolsAgentHost::RenderFrameDevToolsAgentHost(content::FrameTreeNode*, content::RenderFrameHostImpl*) + 57
+11  libcontent.dylib                    0x0000000120eca1c1 content::RenderFrameDevToolsAgentHost::GetOrCreateFor(content::FrameTreeNode*) + 161
+#endif
+  full_screenshot_client_ = base::SequenceBound<FullScreenshotClient>(
+      base::SequencedTaskRunner::GetCurrentDefault(),
+#if 0
+      base::ThreadPool::CreateSequencedTaskRunner(
+          {base::MayBlock(), base::TaskPriority::BEST_EFFORT,
+           base::TaskShutdownBehavior::CONTINUE_ON_SHUTDOWN}),
+#endif
+      web_contents());
+  full_screenshot_client_.AsyncCall(&FullScreenshotClient::CaptureScreenshot)
+      .WithArgs(base::BindOnce(&AIChatTabHelper::OnCaptureScreenshotComplete,
+                               weak_ptr_factory_.GetWeakPtr(),
+                               std::move(callback), content, is_video,
+                               invalidation_token));
+
+#if 0
   content::RenderWidgetHostView* const view =
       web_contents() ? web_contents()->GetRenderWidgetHostView() : nullptr;
   if (!view) {
@@ -387,7 +423,6 @@ void AIChatTabHelper::OnFetchPageContentComplete(
                        base::BindOnce(&OnGetSnapshot, std::move(callback),
                                       std::move(content), is_video,
                                       std::move(invalidation_token)));
-#if 0
   SkBitmap empty;
   view->CopyFromSurface(
       gfx::Rect(),  // Copy entire surface area.
@@ -398,6 +433,23 @@ void AIChatTabHelper::OnFetchPageContentComplete(
                          std::move(invalidation_token)),
           base::OwnedRef(empty)));
 #endif
+}
+
+void AIChatTabHelper::OnCaptureScreenshotComplete(
+    GetPageContentCallback callback,
+    std::string content,
+    bool is_video,
+    std::string invalidation_token,
+    base::expected<std::string, std::string> result) {
+  full_screenshot_client_.Reset();
+  if (result.has_value()) {
+    std::move(callback).Run(std::move(content), is_video,
+                            std::move(invalidation_token), result.value());
+  } else {
+    VLOG(1) << result.error();
+    std::move(callback).Run(std::move(content), is_video,
+                            std::move(invalidation_token), "");
+  }
 }
 
 void AIChatTabHelper::SetPendingGetContentCallback(

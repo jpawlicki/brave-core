@@ -79,7 +79,6 @@ base::Value::List BuildMessages(
     messages.Append(std::move(message));
   }
 
-#if 0
   // Append page content, if exists
   if (!page_content.empty()) {
     const std::string prompt_segment_article = base::ReplaceStringPlaceholders(
@@ -93,9 +92,8 @@ base::Value::List BuildMessages(
     message.Set("content", prompt_segment_article);
     messages.Append(std::move(message));
   }
-#endif
   if (!screenshot.empty()) {
-    LOG(ERROR) << "encoding chars=" << screenshot.size();
+    // LOG(ERROR) << "encoding chars=" << screenshot.size();
     base::Value::Dict message;
     message.Set("role", "user");
     base::Value::List content;
@@ -137,6 +135,7 @@ base::Value::List BuildMessages(
     messages.Append(std::move(message));
   }
 
+  // LOG(ERROR) << std::endl<< messages;
   return messages;
 }
 

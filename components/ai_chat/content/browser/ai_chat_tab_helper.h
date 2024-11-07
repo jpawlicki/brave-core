@@ -12,6 +12,8 @@
 
 #include "base/functional/callback_forward.h"
 #include "base/memory/raw_ptr.h"
+#include "base/memory/scoped_refptr.h"
+#include "base/threading/sequence_bound.h"
 #include "brave/components/ai_chat/core/browser/associated_content_driver.h"
 #include "brave/components/ai_chat/core/browser/conversation_handler.h"
 #include "brave/components/ai_chat/core/common/mojom/page_content_extractor.mojom.h"
@@ -32,6 +34,7 @@ class AIChatUIBrowserTest;
 class UpstreamPDFIntegratoinTest;
 namespace ai_chat {
 class AIChatMetrics;
+class FullScreenshotClient;
 
 // Provides context to an AI Chat conversation in the form of the Tab's content
 class AIChatTabHelper : public content::WebContentsObserver,
@@ -173,6 +176,13 @@ class AIChatTabHelper : public content::WebContentsObserver,
                                   bool is_video,
                                   std::string invalidation_token);
 
+  void OnCaptureScreenshotComplete(
+      GetPageContentCallback callback,
+      std::string content,
+      bool is_video,
+      std::string invalidation_token,
+      base::expected<std::string, std::string> result);
+
   void OnExtractPrintPreviewContentComplete(GetPageContentCallback callback,
                                             std::string content);
 
@@ -210,6 +220,8 @@ class AIChatTabHelper : public content::WebContentsObserver,
 
   // A scoper only used for PDF viewing.
   std::unique_ptr<content::ScopedAccessibilityMode> scoped_accessibility_mode_;
+
+  base::SequenceBound<FullScreenshotClient> full_screenshot_client_;
 
   mojo::AssociatedReceiver<mojom::PageContentExtractorHost>
       page_content_extractor_receiver_{this};
