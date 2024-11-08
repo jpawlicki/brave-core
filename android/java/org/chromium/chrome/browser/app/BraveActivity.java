@@ -1656,7 +1656,7 @@ public abstract class BraveActivity extends ChromeActivity
                     true);
         }
     }
-    
+
     private void checkForNotificationData() {
         Intent notifIntent = getIntent();
         if (notifIntent != null
