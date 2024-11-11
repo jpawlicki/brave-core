@@ -172,6 +172,7 @@ function ContextMenuAssistant_(
             [styles.liked]: currentRatingStatus === RatingStatus.Liked
           })}
           onClick={handleLikeAnswer}
+          title={getLocale('likeDislikeAnswerButtonTitle')}
         >
           <Icon name='thumb-up' />
           <span>{getLocale('likeAnswerButtonLabel')}</span>
@@ -181,6 +182,7 @@ function ContextMenuAssistant_(
             [styles.disliked]: currentRatingStatus === RatingStatus.Disliked
           })}
           onClick={handleDislikeAnswer}
+          title={getLocale('likeDislikeAnswerButtonTitle')}
         >
           <Icon name='thumb-down' />
           <span>{getLocale('dislikeAnswerButtonLabel')}</span>
