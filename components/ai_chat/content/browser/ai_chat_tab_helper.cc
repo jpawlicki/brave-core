@@ -17,6 +17,7 @@
 #include "base/ranges/algorithm.h"
 #include "base/strings/string_util.h"
 #include "base/task/thread_pool.h"
+#include "brave/components/ai_chat/content/browser/full_screenshotter.h"
 #include "brave/components/ai_chat/content/browser/full_screenshot_client.h"
 #include "brave/components/ai_chat/content/browser/page_content_fetcher.h"
 #include "brave/components/ai_chat/content/browser/pdf_utils.h"
@@ -400,17 +401,22 @@ void AIChatTabHelper::OnFetchPageContentComplete(
 #endif
   full_screenshot_client_ = base::SequenceBound<FullScreenshotClient>(
       base::SequencedTaskRunner::GetCurrentDefault(),
-#if 0
-      base::ThreadPool::CreateSequencedTaskRunner(
-          {base::MayBlock(), base::TaskPriority::BEST_EFFORT,
-           base::TaskShutdownBehavior::CONTINUE_ON_SHUTDOWN}),
-#endif
+      // base::ThreadPool::CreateSequencedTaskRunner(
+      //     {base::MayBlock(), base::TaskPriority::BEST_EFFORT,
+      //      base::TaskShutdownBehavior::CONTINUE_ON_SHUTDOWN}),
       web_contents());
   full_screenshot_client_.AsyncCall(&FullScreenshotClient::CaptureScreenshot)
       .WithArgs(base::BindOnce(&AIChatTabHelper::OnCaptureScreenshotComplete,
                                weak_ptr_factory_.GetWeakPtr(),
                                std::move(callback), content, is_video,
                                invalidation_token));
+
+#if 0
+  full_screenshotter_ = std::make_unique<FullScreenshotter>();
+  full_screenshotter_->CaptureScreenshot(web_contents(), base::BindOnce(
+      &AIChatTabHelper::OnCaptureScreenshotComplete, weak_ptr_factory_.GetWeakPtr(),
+      std::move(callback), content, is_video, invalidation_token));
+#endif
 
 #if 0
   content::RenderWidgetHostView* const view =
@@ -443,9 +449,11 @@ void AIChatTabHelper::OnCaptureScreenshotComplete(
     base::expected<std::string, std::string> result) {
   full_screenshot_client_.Reset();
   if (result.has_value()) {
+    LOG(ERROR) << std::endl << "base64_img = b'" << result.value() <<"'";
     std::move(callback).Run(std::move(content), is_video,
                             std::move(invalidation_token), result.value());
   } else {
+    LOG(ERROR) << result.error();
     VLOG(1) << result.error();
     std::move(callback).Run(std::move(content), is_video,
                             std::move(invalidation_token), "");

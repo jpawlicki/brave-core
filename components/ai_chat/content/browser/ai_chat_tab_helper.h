@@ -34,6 +34,7 @@ class AIChatUIBrowserTest;
 class UpstreamPDFIntegratoinTest;
 namespace ai_chat {
 class AIChatMetrics;
+class FullScreenshotter;
 class FullScreenshotClient;
 
 // Provides context to an AI Chat conversation in the form of the Tab's content
@@ -222,6 +223,8 @@ class AIChatTabHelper : public content::WebContentsObserver,
   std::unique_ptr<content::ScopedAccessibilityMode> scoped_accessibility_mode_;
 
   base::SequenceBound<FullScreenshotClient> full_screenshot_client_;
+
+  std::unique_ptr<FullScreenshotter> full_screenshotter_;
 
   mojo::AssociatedReceiver<mojom::PageContentExtractorHost>
       page_content_extractor_receiver_{this};

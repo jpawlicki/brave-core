@@ -12,7 +12,8 @@
 namespace ai_chat {
 
 FullScreenshotClient::FullScreenshotClient(content::WebContents* web_contents)
-    : devtools_agent_host_(content::DevToolsAgentHost::GetOrCreateFor(web_contents)) {
+    : devtools_agent_host_(
+          content::DevToolsAgentHost::GetOrCreateFor(web_contents)) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   devtools_agent_host_->AttachClient(this);
 }
@@ -22,7 +23,8 @@ FullScreenshotClient::~FullScreenshotClient() {
   devtools_agent_host_->DetachClient(this);
 }
 
-void FullScreenshotClient::CaptureScreenshot(CaptureScreenshotCallback callback) {
+void FullScreenshotClient::CaptureScreenshot(
+    CaptureScreenshotCallback callback) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
 
   on_screenshot_compelte_ = std::move(callback);
@@ -39,36 +41,41 @@ void FullScreenshotClient::CaptureScreenshot(CaptureScreenshotCallback callback)
     screenshot_cmd.Set("params", std::move(params.value()));
   }
   std::string json_command;
-  base::JSONWriter::Write(base::Value(std::move(screenshot_cmd)), &json_command);
-  devtools_agent_host_->DispatchProtocolMessage(this,
-    base::as_bytes(base::make_span(json_command)));
+  base::JSONWriter::Write(base::Value(std::move(screenshot_cmd)),
+                          &json_command);
+  devtools_agent_host_->DispatchProtocolMessage(
+      this, base::as_bytes(base::make_span(json_command)));
 }
 
 void FullScreenshotClient::DispatchProtocolMessage(
-      content::DevToolsAgentHost* agent_host,
-      base::span<const uint8_t> message) {
+    content::DevToolsAgentHost* agent_host,
+    base::span<const uint8_t> message) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  LOG(ERROR) << __func__;
   // TODO: check id
   std::string_view message_str(reinterpret_cast<const char*>(message.data()),
-      message.size());
+                               message.size());
   auto json_message = base::JSONReader::Read(message_str);
   if (json_message) {
     auto* data = json_message->GetDict().FindStringByDottedPath("result.data");
     if (data) {
-      //LOG(ERROR) << std::endl << "base64_img = b'" << *data <<"'";
+      // LOG(ERROR) << std::endl << "base64_img = b'" << *data <<"'";
       std::move(on_screenshot_compelte_).Run(base::ok(*data));
       return;
     }
   }
-  std::move(on_screenshot_compelte_).Run(base::unexpected("Failed to capture screenshot"));
+  std::move(on_screenshot_compelte_)
+      .Run(base::unexpected("Failed to capture screenshot"));
 }
 
-void FullScreenshotClient::AgentHostClosed(content::DevToolsAgentHost* agent_host) {
+void FullScreenshotClient::AgentHostClosed(
+    content::DevToolsAgentHost* agent_host) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   LOG(ERROR) << __func__;
 }
 
-bool FullScreenshotClient::MayAttachToRenderFrameHost(content::RenderFrameHost* render_frame_host) {
+bool FullScreenshotClient::MayAttachToRenderFrameHost(
+    content::RenderFrameHost* render_frame_host) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   return true;
 }
@@ -77,4 +84,4 @@ bool FullScreenshotClient::IsTrusted() {
   return true;
 }
 
-} // namespace ai_chat
+}  // namespace ai_chat

@@ -15,6 +15,8 @@ static_library("browser") {
     "ai_chat_throttle.h",
     "full_screenshot_client.cc",
     "full_screenshot_client.h",
+    "full_screenshotter.cc",
+    "full_screenshotter.h",
     "model_service_factory.cc",
     "model_service_factory.h",
     "page_content_fetcher.cc",

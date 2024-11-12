@@ -80,6 +80,7 @@ base::Value::List BuildMessages(
   }
 
   // Append page content, if exists
+#if 0
   if (!page_content.empty()) {
     const std::string prompt_segment_article = base::ReplaceStringPlaceholders(
         l10n_util::GetStringUTF8(
@@ -92,6 +93,7 @@ base::Value::List BuildMessages(
     message.Set("content", prompt_segment_article);
     messages.Append(std::move(message));
   }
+#endif
   if (!screenshot.empty()) {
     // LOG(ERROR) << "encoding chars=" << screenshot.size();
     base::Value::Dict message;

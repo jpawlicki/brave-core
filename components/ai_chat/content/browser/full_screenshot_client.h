@@ -15,24 +15,25 @@
 namespace ai_chat {
 
 class FullScreenshotClient : public content::DevToolsAgentHostClient {
-  public:
-    explicit FullScreenshotClient(content::WebContents* web_contents);
-    ~FullScreenshotClient() override;
-    FullScreenshotClient(const FullScreenshotClient&) = delete;
-    FullScreenshotClient& operator=(const FullScreenshotClient&) = delete;
+ public:
+  explicit FullScreenshotClient(content::WebContents* web_contents);
+  ~FullScreenshotClient() override;
+  FullScreenshotClient(const FullScreenshotClient&) = delete;
+  FullScreenshotClient& operator=(const FullScreenshotClient&) = delete;
 
   // <base64 encoded image, error>
-  using CaptureScreenshotCallback = base::OnceCallback<void(base::expected<std::string, std::string>)>;
+  using CaptureScreenshotCallback =
+      base::OnceCallback<void(base::expected<std::string, std::string>)>;
   void CaptureScreenshot(CaptureScreenshotCallback callback);
-  
-  private:
-    // content::DevToolsAgentHostClient
-    void DispatchProtocolMessage(
-        content::DevToolsAgentHost* agent_host,
-        base::span<const uint8_t> message) override;
-    void AgentHostClosed(content::DevToolsAgentHost* agent_host) override;
-    bool MayAttachToRenderFrameHost(content::RenderFrameHost* render_frame_host) override;
-    bool IsTrusted() override;
+
+ private:
+  // content::DevToolsAgentHostClient
+  void DispatchProtocolMessage(content::DevToolsAgentHost* agent_host,
+                               base::span<const uint8_t> message) override;
+  void AgentHostClosed(content::DevToolsAgentHost* agent_host) override;
+  bool MayAttachToRenderFrameHost(
+      content::RenderFrameHost* render_frame_host) override;
+  bool IsTrusted() override;
 
   int request_id_ = 0;
   CaptureScreenshotCallback on_screenshot_compelte_;
@@ -40,6 +41,6 @@ class FullScreenshotClient : public content::DevToolsAgentHostClient {
   SEQUENCE_CHECKER(sequence_checker_);
 };
 
-} // namespace ai_chat
+}  // namespace ai_chat
 
 #endif  // BRAVE_COMPONENTS_AI_CHAT_CONTENT_BROWSER_FULL_SCREENSHOT_CLIENT_H_
