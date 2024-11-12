@@ -269,23 +269,36 @@ void AIChatService::OnPremiumStatusReceived(GetPremiumStatusCallback callback,
 
 void AIChatService::MaybeEraseConversation(
     ConversationHandler* conversation_handler) {
-  if (!conversation_handler->IsAnyClientConnected() &&
-      (!features::IsAIChatHistoryEnabled() ||
-       !conversation_handler->HasAnyHistory())) {
-    // Can erase because no active UI and no history, so it's
-    // not a real / persistable conversation
-    auto uuid = conversation_handler->get_conversation_uuid();
-    conversation_observations_.RemoveObservation(conversation_handler);
-    conversation_handlers_.erase(uuid);
-    conversations_.erase(uuid);
-    std::erase_if(content_conversations_,
-                  [&uuid](const auto& kv) { return kv.second == uuid; });
-    DVLOG(1) << "Erased conversation (" << uuid << "). Now have "
-             << conversations_.size() << " Conversation metadata items and "
-             << conversation_handlers_.size()
-             << " ConversationHandler instances.";
-    OnConversationListChanged();
+  // Don't unload if there is active UI for the conversation
+  if (conversation_handler->IsAnyClientConnected()) {
+    return;
   }
+
+  // Without the history feature flag, we can unload the conversation if there
+  // is no active content and chat history.
+  if (!features::IsAIChatHistoryEnabled() &&
+      conversation_handler->IsAssociatedContentAlive() &&
+      conversation_handler->HasAnyHistory()) {
+    return;
+  }
+
+  // With the history feature flag, only unload if there is no active history.
+  if (features::IsAIChatHistoryEnabled() &&
+      !conversation_handler->HasAnyHistory()) {
+    return;
+  }
+
+  auto uuid = conversation_handler->get_conversation_uuid();
+  conversation_observations_.RemoveObservation(conversation_handler);
+  conversation_handlers_.erase(uuid);
+  conversations_.erase(uuid);
+  std::erase_if(content_conversations_,
+                [&uuid](const auto& kv) { return kv.second == uuid; });
+  DVLOG(1) << "Erased conversation (" << uuid << "). Now have "
+           << conversations_.size() << " Conversation metadata items and "
+           << conversation_handlers_.size()
+           << " ConversationHandler instances.";
+  OnConversationListChanged();
 }
 
 void AIChatService::OnConversationEntriesChanged(
@@ -326,6 +339,10 @@ void AIChatService::OnConversationTitleChanged(ConversationHandler* handler,
   auto& conversation = conversation_it->second;
   conversation->title = title;
   OnConversationListChanged();
+}
+
+void AIChatService::OnAssociatedContentDestroyed(ConversationHandler* handler) {
+  MaybeEraseConversation(handler);
 }
 
 void AIChatService::GetVisibleConversations(

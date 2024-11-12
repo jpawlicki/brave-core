@@ -201,6 +201,10 @@ bool ConversationHandler::HasAnyHistory() {
                               });
 }
 
+bool ConversationHandler::IsAssociatedContentAlive() {
+  return associated_content_delegate_ && !archive_content_;
+}
+
 void ConversationHandler::OnConversationDeleted() {
   for (auto& client : conversation_ui_handlers_) {
     client->OnConversationDeleted();
