@@ -32,8 +32,8 @@ void FullScreenshotClient::CaptureScreenshot(
   screenshot_cmd.Set("id", request_id_++);
   screenshot_cmd.Set("method", "Page.captureScreenshot");
   auto params = base::JSONReader::Read(R"({
-    "format": "png",
-    "quality": 100,
+    "format": "jpeg",
+    "quality": 25,
     "fromSurface": true,
     "captureBeyondViewport": true
   })");

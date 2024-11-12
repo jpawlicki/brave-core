@@ -104,7 +104,7 @@ base::Value::List BuildMessages(
     user_message.Set("text", "This image is also page content");
     content.Append(std::move(user_message));
     base::Value::Dict image;
-    constexpr char kImageUrl[] = R"(data:image/png;base64,$1)";
+    constexpr char kImageUrl[] = R"(data:image/jpeg;base64,$1)";
     image.Set("type", "image_url");
     const std::string image_url =
         base::ReplaceStringPlaceholders(kImageUrl, {screenshot}, nullptr);
