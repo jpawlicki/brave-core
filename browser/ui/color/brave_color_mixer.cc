@@ -144,10 +144,10 @@ void AddBraveVpnColorMixer(ui::ColorProvider* provider,
   }
   mixer[kColorBraveVpnButtonErrorBorder] = {kColorBraveVpnButtonTextError};
 
-  mixer[kColorBraveVpnButtonIconConnected] = {SkColorSetRGB(0x3F, 0xA4, 0x50)};
+  mixer[kColorBraveVpnButtonIconConnected] = {SkColorSetRGB(0x00, 0x8B, 0x18)};
   mixer[kColorBraveVpnButtonIconDisconnected] = {PickColorContrastingToToolbar(
-      key, mixer, SkColorSetARGB(0x99, 0x0B, 0x16, 0x41),
-      SkColorSetARGB(0xCC, 0xB1, 0xB7, 0xCD))};
+      key, mixer, SkColorSetRGB(0x46, 0x46, 0x4A),
+      SkColorSetRGB(0x46, 0x46, 0x4A))};
   mixer[kColorBraveVpnButtonIconInner] = {PickSimilarColorToToolbar(
       key, mixer, SK_ColorWHITE, SkColorSetARGB(0x33, 0x04, 0x04, 0x06))};
   mixer[kColorBraveVpnButtonIconError] = {kColorBraveVpnButtonErrorBorder};

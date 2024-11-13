@@ -206,4 +206,8 @@ std::optional<int> BraveIconWithBadgeImageSource::GetCustomGraphicYOffset() {
   return std::floor((size().height() - content_image_size_) / 2.0);
 }
 
+const ui::ColorProvider* BraveIconWithBadgeImageSource::GetColorProvider() const {
+  return get_color_provider_callback_.Run();
+}
+
 }  // namespace brave

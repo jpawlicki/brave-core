@@ -52,6 +52,8 @@ class BraveVPNButton : public ToolbarButton,
   void UpdateColorsAndInsets() override;
   std::u16string GetTooltipText(const gfx::Point& p) const override;
   void OnThemeChanged() override;
+  // gfx::Size CalculatePreferredSize(
+  //     const views::SizeBounds& available_size) const override;
 
   void SetVpnConnectionStateForTesting(
       brave_vpn::mojom::ConnectionState state) {
@@ -73,6 +75,7 @@ class BraveVPNButton : public ToolbarButton,
   raw_ptr<Browser> browser_ = nullptr;
   raw_ptr<brave_vpn::BraveVpnService> service_ = nullptr;
   raw_ptr<views::MenuButtonController> menu_button_controller_ = nullptr;
+  base::WeakPtrFactory<BraveVPNButton> weak_ptr_factory_{this};
 };
 
 #endif  // BRAVE_BROWSER_UI_VIEWS_TOOLBAR_BRAVE_VPN_BUTTON_H_

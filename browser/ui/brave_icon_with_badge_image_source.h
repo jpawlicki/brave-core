@@ -42,6 +42,7 @@ class BraveIconWithBadgeImageSource : public IconWithBadgeImageSource {
  protected:
   virtual void PaintBadgeWithoutText(const gfx::Rect& badge_rect,
                                      gfx::Canvas* canvas);
+  const ui::ColorProvider* GetColorProvider() const;
 
  private:
   void PaintBadge(gfx::Canvas* canvas) override;

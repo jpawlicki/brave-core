@@ -13,9 +13,11 @@
 #include "brave/app/brave_command_ids.h"
 #include "brave/app/vector_icons/vector_icons.h"
 #include "brave/browser/brave_vpn/brave_vpn_service_factory.h"
+#include "brave/browser/ui/brave_icon_with_badge_image_source.h"
 #include "brave/browser/ui/color/brave_color_id.h"
 #include "brave/components/brave_vpn/browser/brave_vpn_service.h"
 #include "brave/components/l10n/common/localization_util.h"
+#include "brave/components/vector_icons/vector_icons.h"
 #include "brave/grit/brave_generated_resources.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_commands.h"
@@ -44,6 +46,8 @@ using ConnectionState = brave_vpn::mojom::ConnectionState;
 using PurchasedState = brave_vpn::mojom::PurchasedState;
 
 namespace {
+
+// constexpr int kBraveVPNLeftMarginExtra = -3;
 
 // For error icon's inner color.
 class ConnectErrorIconBackground : public views::Background {
@@ -115,6 +119,54 @@ class VPNButtonMenuModel : public ui::SimpleMenuModel,
   raw_ptr<brave_vpn::BraveVpnService> service_ = nullptr;
 };
 
+const ui::ColorProvider* GetColorProviderForView(
+    base::WeakPtr<BraveVPNButton> view) {
+  if (view) {
+    return view->GetColorProvider();
+  }
+
+  return ui::ColorProviderManager::Get().GetColorProviderFor(
+      ui::NativeTheme::GetInstanceForNativeUi()->GetColorProviderKey(nullptr));
+}
+
+// Draws a custom badge for vpn status.
+class BraveVPNBadgeImageSource : public brave::BraveIconWithBadgeImageSource {
+ public:
+  BraveVPNBadgeImageSource(const gfx::Size& size, int icon_size,
+                           GetColorProviderCallback get_color_provider_callback)
+      : BraveIconWithBadgeImageSource(size,
+                                      std::move(get_color_provider_callback),
+                                      icon_size,
+                                      0) {
+    SetAllowEmptyText(true);
+  }
+
+ private:
+  // brave::BraveIconWithBadgeImageSource:
+  void PaintBadgeWithoutText(const gfx::Rect& badge_rect,
+                             gfx::Canvas* canvas) override {
+    bool is_connected_ = true;
+    auto image = gfx::CreateVectorIcon(
+        is_connected_ ? kVpnIndicatorOnIcon : kVpnIndicatorOffIcon, 10,
+        GetColorProvider()->GetColor(
+            is_connected_ ? kColorBraveVpnButtonIconConnected
+                          : kColorBraveVpnButtonIconDisconnected));
+
+    cc::PaintFlags image_flags;
+    image_flags.setStyle(cc::PaintFlags::kFill_Style);
+    image_flags.setAntiAlias(true);
+    canvas->DrawImageInt(image, 10, 11, image_flags);
+  }
+
+  std::optional<int> GetCustomGraphicXOffset() override {
+    return 0;
+  }
+
+  std::optional<int> GetCustomGraphicYOffset() override {
+    return 0;
+  }
+};
+
 }  // namespace
 
 BraveVPNButton::BraveVPNButton(Browser* browser)
@@ -140,32 +192,8 @@ BraveVPNButton::BraveVPNButton(Browser* browser)
       std::make_unique<views::Button::DefaultButtonControllerDelegate>(this));
   menu_button_controller_ = menu_button_controller.get();
   SetButtonController(std::move(menu_button_controller));
-
-  SetTextSubpixelRenderingEnabled(false);
-  label()->SetText(brave_l10n::GetLocalizedResourceUTF16String(
-      IDS_BRAVE_VPN_TOOLBAR_BUTTON_TEXT));
-  gfx::FontList font_list = views::Label::GetDefaultFontList();
-  constexpr int kFontSize = 12;
-  label()->SetFontList(
-      font_list.DeriveWithSizeDelta(kFontSize - font_list.GetFontSize()));
-
-  // W/o layer, ink drop affects text color.
-  label()->SetPaintToLayer();
-
-  // To clear previous pixels.
-  label()->layer()->SetFillsBoundsOpaquely(false);
-
-  // Set image positions first. then label.
-  SetHorizontalAlignment(gfx::ALIGN_LEFT);
-
-  // Views resulting in focusable nodes later on in the accessibility tree need
-  // to have an accessible name for screen readers to see what they are about.
-  // TODO(simonhong): Re-visit this name.
   SetAccessibleName(brave_l10n::GetLocalizedResourceUTF16String(
       IDS_BRAVE_VPN_TOOLBAR_BUTTON_TEXT));
-
-  constexpr int kBraveAvatarImageLabelSpacing = 4;
-  SetImageLabelSpacing(kBraveAvatarImageLabelSpacing);
 }
 
 BraveVPNButton::~BraveVPNButton() = default;
@@ -211,84 +239,134 @@ void BraveVPNButton::UpdateColorsAndInsets() {
     return;
   }
 
-  const auto bg_color =
-      cp->GetColor(is_error_state_ ? kColorBraveVpnButtonErrorBackgroundNormal
-                                   : kColorBraveVpnButtonBackgroundNormal);
-  const int radius = ChromeLayoutProvider::Get()->GetCornerRadiusMetric(
-      views::Emphasis::kMaximum, {});
-  SetBackground(views::CreateRoundedRectBackground(bg_color, radius));
+  // No badge for not purchased state.
+  // if (!IsPurchased()) {
+  //   SetVectorIcon(kLeoProductVpnIcon);
+  //   return;
+  // }
 
-  SetEnabledTextColors(cp->GetColor(is_error_state_
-                                        ? kColorBraveVpnButtonTextError
-                                        : kColorBraveVpnButtonText));
-  if (is_error_state_) {
-    SetImageModel(views::Button::STATE_NORMAL,
-                  ui::ImageModel::FromVectorIcon(
-                      kVpnIndicatorErrorIcon,
-                      cp->GetColor(kColorBraveVpnButtonIconError)));
+  SetBorder(views::CreateEmptyBorder(gfx::Insets::TLBR(7, 4, 0, 4)));
 
-    // Use background for inner color of error button image.
-    image_container_view()->SetBackground(
-        std::make_unique<ConnectErrorIconBackground>(
-            cp->GetColor(kColorBraveVpnButtonIconErrorInner)));
-  } else {
-    SetImageModel(
-        views::Button::STATE_NORMAL,
-        ui::ImageModel::FromVectorIcon(
-            is_connected_ ? kVpnIndicatorOnIcon : kVpnIndicatorOffIcon,
-            cp->GetColor(is_connected_
-                             ? kColorBraveVpnButtonIconConnected
-                             : kColorBraveVpnButtonIconDisconnected)));
+  bool activated = false;
 
-    // Use background for inner color of button image.
-    // Adjusted border thickness to make invisible to the outside of the icon.
-    image_container_view()->SetBackground(views::CreateRoundedRectBackground(
-        cp->GetColor(kColorBraveVpnButtonIconInner), 5 /*radi*/, 2 /*thick*/));
+  auto badge_image = gfx::CreateVectorIcon(
+      is_connected_ ? kVpnIndicatorOnIcon : kVpnIndicatorOffIcon, 10,
+      cp->GetColor(is_connected_ ? kColorBraveVpnButtonIconConnected
+                                 : kColorBraveVpnButtonIconDisconnected));
+
+  ui::ColorId icon_color_id = kColorToolbarButtonIcon;
+  if (activated) {
+    icon_color_id = kColorToolbarButtonActivated;
   }
 
-  // Compute highlight color and border in advance. If not, highlight color and
-  // border color are mixed as both have alpha value.
-  // Draw border only for error state.
-  SetBorder(GetBorder(color_utils::GetResultingPaintColor(
-      cp->GetColor(is_error_state_ ? kColorBraveVpnButtonErrorBorder
-                                   : kColorBraveVpnButtonBorder),
-      bg_color)));
-
-  auto* ink_drop_host = views::InkDrop::Get(this);
-
-  // Use different ink drop hover color for each themes.
-  auto target_base_color = color_utils::GetResultingPaintColor(
-      cp->GetColor(is_error_state_ ? kColorBraveVpnButtonErrorBackgroundHover
-                                   : kColorBraveVpnButtonBackgroundHover),
-      bg_color);
-  bool need_ink_drop_color_update =
-      target_base_color != ink_drop_host->GetBaseColor();
-
-  // Update ink drop color if needed because we toggle ink drop mode below after
-  // set base color. Toggling could cause subtle flicking.
-  if (!need_ink_drop_color_update) {
-    return;
-  }
-
-  views::InkDrop::Get(this)->SetBaseColor(target_base_color);
-
-  // Hack to update inkdrop color immediately.
-  // W/o this, background color and image are changed but inkdrop color is still
-  // using previous one till button state is changed after changing base color.
-  const auto previous_ink_drop_state =
-      views::InkDrop::Get(this)->GetInkDrop()->GetTargetInkDropState();
-  views::InkDrop::Get(this)->SetMode(views::InkDropHost::InkDropMode::OFF);
-  views::InkDrop::Get(this)->SetMode(views::InkDropHost::InkDropMode::ON);
-  // After toggling, ink drop state is reset. So need to re-apply previous
-  // state.
-  if (previous_ink_drop_state == views::InkDropState::ACTIVATED) {
-    views::InkDrop::Get(this)->GetInkDrop()->SnapToActivated();
-  }
+  auto icon = gfx::CreateVectorIcon(kLeoProductVpnIcon, GetIconSize(),
+                                    cp->GetColor(icon_color_id));
+  auto image_source = std::make_unique<BraveVPNBadgeImageSource>(
+      gfx::Size(GetIconSize() + 2, GetIconSize() + 3), GetIconSize(),
+      base::BindRepeating(&GetColorProviderForView,
+                          weak_ptr_factory_.GetWeakPtr()));
+  // Don't need to have text badget here but custom badget is not painted
+  // if it's null. Set dummy badge.
+  image_source->SetBadge(std::make_unique<IconWithBadgeImageSource::Badge>(
+      std::string(), gfx::kPlaceholderColor, gfx::kPlaceholderColor));
+  image_source->SetIcon(gfx::Image(icon));
+  SetImageModel(views::Button::STATE_NORMAL,
+                ui::ImageModel::FromImageSkia(gfx::ImageSkia(
+                    std::move(image_source),
+                    gfx::Size(GetIconSize() + 2, GetIconSize() + 3))));
 }
 
+// void BraveVPNButton::UpdateColorsAndInsets() {
+//   ui::ColorProvider* cp = GetColorProvider();
+//   if (!cp) {
+//     return;
+//   }
+
+//   const auto bg_color =
+//       cp->GetColor(is_error_state_ ?
+//       kColorBraveVpnButtonErrorBackgroundNormal
+//                                    : kColorBraveVpnButtonBackgroundNormal);
+//   const int radius = ChromeLayoutProvider::Get()->GetCornerRadiusMetric(
+//       views::Emphasis::kMaximum, {});
+//   SetBackground(views::CreateRoundedRectBackground(bg_color, radius));
+
+//   SetEnabledTextColors(cp->GetColor(is_error_state_
+//                                         ? kColorBraveVpnButtonTextError
+//                                         : kColorBraveVpnButtonText));
+//   if (is_error_state_) {
+//     SetImageModel(views::Button::STATE_NORMAL,
+//                   ui::ImageModel::FromVectorIcon(
+//                       kVpnIndicatorErrorIcon,
+//                       cp->GetColor(kColorBraveVpnButtonIconError)));
+
+//     // Use background for inner color of error button image.
+//     image_container_view()->SetBackground(
+//         std::make_unique<ConnectErrorIconBackground>(
+//             cp->GetColor(kColorBraveVpnButtonIconErrorInner)));
+//   } else {
+//     SetImageModel(
+//         views::Button::STATE_NORMAL,
+//         ui::ImageModel::FromVectorIcon(
+//             is_connected_ ? kVpnIndicatorOnIcon : kVpnIndicatorOffIcon,
+//             cp->GetColor(is_connected_
+//                              ? kColorBraveVpnButtonIconConnected
+//                              : kColorBraveVpnButtonIconDisconnected)));
+
+//     // Use background for inner color of button image.
+//     // Adjusted border thickness to make invisible to the outside of the
+//     icon.
+//     image_container_view()->SetBackground(views::CreateRoundedRectBackground(
+//         cp->GetColor(kColorBraveVpnButtonIconInner), 5 /*radi*/, 2
+//         /*thick*/));
+//   }
+
+//   // Compute highlight color and border in advance. If not, highlight color
+//   and
+//   // border color are mixed as both have alpha value.
+//   // Draw border only for error state.
+//   SetBorder(GetBorder(color_utils::GetResultingPaintColor(
+//       cp->GetColor(is_error_state_ ? kColorBraveVpnButtonErrorBorder
+//                                    : kColorBraveVpnButtonBorder),
+//       bg_color)));
+
+//   auto* ink_drop_host = views::InkDrop::Get(this);
+
+//   // Use different ink drop hover color for each themes.
+//   auto target_base_color = color_utils::GetResultingPaintColor(
+//       cp->GetColor(is_error_state_ ? kColorBraveVpnButtonErrorBackgroundHover
+//                                    : kColorBraveVpnButtonBackgroundHover),
+//       bg_color);
+//   bool need_ink_drop_color_update =
+//       target_base_color != ink_drop_host->GetBaseColor();
+
+//   // Update ink drop color if needed because we toggle ink drop mode below
+//   after
+//   // set base color. Toggling could cause subtle flicking.
+//   if (!need_ink_drop_color_update) {
+//     return;
+//   }
+
+//   views::InkDrop::Get(this)->SetBaseColor(target_base_color);
+
+//   // Hack to update inkdrop color immediately.
+//   // W/o this, background color and image are changed but inkdrop color is
+//   still
+//   // using previous one till button state is changed after changing base
+//   color. const auto previous_ink_drop_state =
+//       views::InkDrop::Get(this)->GetInkDrop()->GetTargetInkDropState();
+//   views::InkDrop::Get(this)->SetMode(views::InkDropHost::InkDropMode::OFF);
+//   views::InkDrop::Get(this)->SetMode(views::InkDropHost::InkDropMode::ON);
+//   // After toggling, ink drop state is reset. So need to re-apply previous
+//   // state.
+//   if (previous_ink_drop_state == views::InkDropState::ACTIVATED) {
+//     views::InkDrop::Get(this)->GetInkDrop()->SnapToActivated();
+//   }
+// }
+
 std::u16string BraveVPNButton::GetTooltipText(const gfx::Point& p) const {
-  if (!IsPurchased())
+  if (!IsPurchased()) {
     return l10n_util::GetStringUTF16(IDS_BRAVE_VPN);
+  }
 
   return l10n_util::GetStringUTF16(IsConnected()
                                        ? IDS_BRAVE_VPN_CONNECTED_TOOLTIP
@@ -309,6 +387,12 @@ void BraveVPNButton::OnThemeChanged() {
 
   UpdateColorsAndInsets();
 }
+
+// gfx::Size BraveVPNButton::CalculatePreferredSize(
+//     const views::SizeBounds& available_size) const {
+//   int size = GetLayoutConstant(TOOLBAR_BUTTON_HEIGHT);
+//   return gfx::Size(size, size);
+// }
 
 bool BraveVPNButton::IsConnected() const {
   return service_->IsConnected();
