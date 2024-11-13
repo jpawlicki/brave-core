@@ -154,7 +154,7 @@ public class BraveVPNSettingsViewController: TableViewController {
           uuid: vpnStatusSectionCellId
         ),
         Row(
-          text: "Use Smart Proxy",
+          text: Strings.VPN.settingsVPNSmartProxyEnabled,
           accessory: .view(vpnSmartProxyToggleView),
           uuid: vpnSmartProxySectionCellId
         ),
