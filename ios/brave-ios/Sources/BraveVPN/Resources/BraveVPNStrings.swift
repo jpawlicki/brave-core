@@ -906,5 +906,13 @@ extension Strings {
         value: "VPN Region Changed",
         comment: "The alert title showing vpn region is changed"
       )
+
+    public static let settingsVPNSmartProxyEnabled =
+      NSLocalizedString(
+        "vpn.settingsVPNSmartProxyEnabled",
+        bundle: .module,
+        value: "Use Smart Proxy",
+        comment: "Whether the VPN's Smart-Proxy feature is enabled or not"
+      )
   }
 }

@@ -6628,15 +6628,6 @@ extension Strings {
         comment: "Whether the VPN is enabled or not"
       )
 
-    public static let settingsVPNSmartProxyEnabled =
-      NSLocalizedString(
-        "vpn.settingsVPNSmartProxyEnabled",
-        tableName: "BraveShared",
-        bundle: .module,
-        value: "Use Smart Proxy",
-        comment: "Whether the VPN's Smart-Proxy feature is enabled or not"
-      )
-
     public static let errorCantGetPricesTitle =
       NSLocalizedString(
         "vpn.errorCantGetPricesTitle",

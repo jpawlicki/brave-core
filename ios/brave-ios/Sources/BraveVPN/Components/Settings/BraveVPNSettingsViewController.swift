@@ -132,7 +132,7 @@ public class BraveVPNSettingsViewController: TableViewController {
     )
 
     let vpnSmartProxyToggleView = SwitchAccessoryView(
-      initialValue: GRDVPNHelper.smartProxyRoutingEnabled(),
+      initialValue: BraveVPN.isSmartProxyRoutingEnabled,
       valueChange: { isSmartProxyEnabled in
         BraveVPN.isSmartProxyRoutingEnabled = isSmartProxyEnabled
       }
