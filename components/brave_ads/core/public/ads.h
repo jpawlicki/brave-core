@@ -9,10 +9,10 @@
 #include <memory>
 #include <string>
 
-#include "brave/components/brave_ads/browser/ads_service_callback.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom-forward.h"
 #include "brave/components/brave_ads/core/public/ads_callback.h"
 #include "brave/components/brave_ads/core/public/ads_observer_interface.h"
+#include "brave/components/brave_ads/core/public/ads_service/ads_service_callback.h"
 #include "brave/components/brave_ads/core/public/export.h"
 
 namespace base {
@@ -57,6 +57,10 @@ class ADS_EXPORT Ads {
   // Called to shutdown ads. The callback takes one argument - `bool` is set to
   // `true` if successful otherwise `false`.
   virtual void Shutdown(ShutdownCallback callback) = 0;
+
+  // Called to get internals. The callback takes one argument -
+  // `base::Value::List` containing info of the obtained internals.
+  virtual void GetInternals(GetInternalsCallback callback) = 0;
 
   // Called to get diagnostics to help identify issues. The callback takes one
   // argument - `base::Value::List` containing info of the obtained diagnostics.
