@@ -87,6 +87,11 @@ public class QuickSearchEnginesUtil {
         if (!searchEnginesMap.containsKey(BraveActivity.GOOGLE_SEARCH_ENGINE_KEYWORD)) {
             addYtQuickSearchEnginesModel(searchEnginesMap);
         }
+
+        if (searchEnginesMap.containsKey(defaultSearchEngineTemplateUrl.getKeyword())) {
+            searchEnginesMap.remove(defaultSearchEngineTemplateUrl.getKeyword());
+        }
+
         saveSearchEnginesIntoPref(searchEnginesMap);
         return searchEnginesMap;
     }
@@ -133,12 +138,15 @@ public class QuickSearchEnginesUtil {
     }
 
     public static QuickSearchEnginesModel getDefaultSearchEngine(Profile profile) {
-        Map<String, QuickSearchEnginesModel> searchEnginesMap = getQuickSearchEngines(profile);
         TemplateUrlService templateUrlService = TemplateUrlServiceFactory.getForProfile(profile);
         TemplateUrl defaultSearchEngineTemplateUrl =
                 templateUrlService.getDefaultSearchEngineTemplateUrl();
         QuickSearchEnginesModel defaultSearchEnginesModel =
-                searchEnginesMap.get(defaultSearchEngineTemplateUrl.getKeyword());
+                new QuickSearchEnginesModel(
+                        defaultSearchEngineTemplateUrl.getShortName(),
+                        defaultSearchEngineTemplateUrl.getKeyword(),
+                        defaultSearchEngineTemplateUrl.getURL(),
+                        true);
         return defaultSearchEnginesModel;
     }
 }
