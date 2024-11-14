@@ -6,6 +6,7 @@
 #include "brave/ios/browser/brave_ads/ads_service_impl_ios.h"
 
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "base/check.h"
@@ -56,7 +57,9 @@ void AdsServiceImplIOS::InitializeAds(
     mojom::BuildChannelInfoPtr mojom_build_channel,
     mojom::WalletInfoPtr mojom_wallet,
     InitializeCallback callback) {
-  CHECK(!IsRunning());
+  if (IsRunning()) {
+    return std::move(callback).Run(/*success=*/false);
+  }
 
   storage_path_ = base::FilePath(storage_path);
   ads_client_ = std::move(ads_client);
@@ -68,7 +71,9 @@ void AdsServiceImplIOS::InitializeAds(
 }
 
 void AdsServiceImplIOS::ShutdownAds(ShutdownCallback callback) {
-  CHECK(IsRunning());
+  if (!IsRunning()) {
+    return std::move(callback).Run(/*success=*/false);
+  }
 
   ads_->Shutdown(base::BindOnce(&AdsServiceImplIOS::ShutdownAdsCallback,
                                 weak_ptr_factory_.GetWeakPtr(),
@@ -92,9 +97,19 @@ void AdsServiceImplIOS::RunDBTransaction(
       .Then(std::move(callback));
 }
 
+void AdsServiceImplIOS::GetInternals(GetInternalsCallback callback) {
+  if (!IsRunning()) {
+    return std::move(callback).Run(/*internals=*/std::nullopt);
+  }
+
+  ads_->GetInternals(std::move(callback));
+}
+
 void AdsServiceImplIOS::GetStatementOfAccounts(
     GetStatementOfAccountsCallback callback) {
-  CHECK(IsRunning());
+  if (!IsRunning()) {
+    return std::move(callback).Run(/*mojom_statement=*/nullptr);
+  }
 
   ads_->GetStatementOfAccounts(std::move(callback));
 }
@@ -102,7 +117,9 @@ void AdsServiceImplIOS::GetStatementOfAccounts(
 void AdsServiceImplIOS::MaybeServeInlineContentAd(
     const std::string& dimensions,
     MaybeServeInlineContentAdCallback callback) {
-  CHECK(IsRunning());
+  if (!IsRunning()) {
+    return std::move(callback).Run(dimensions, /*ad=*/std::nullopt);
+  }
 
   ads_->MaybeServeInlineContentAd(dimensions, std::move(callback));
 }
@@ -112,7 +129,9 @@ void AdsServiceImplIOS::TriggerInlineContentAdEvent(
     const std::string& creative_instance_id,
     mojom::InlineContentAdEventType mojom_ad_event_type,
     TriggerAdEventCallback callback) {
-  CHECK(IsRunning());
+  if (!IsRunning()) {
+    return std::move(callback).Run(/*success=*/false);
+  }
 
   ads_->TriggerInlineContentAdEvent(placement_id, creative_instance_id,
                                     mojom_ad_event_type, std::move(callback));
@@ -123,7 +142,9 @@ void AdsServiceImplIOS::TriggerNewTabPageAdEvent(
     const std::string& creative_instance_id,
     mojom::NewTabPageAdEventType mojom_ad_event_type,
     TriggerAdEventCallback callback) {
-  CHECK(IsRunning());
+  if (!IsRunning()) {
+    return std::move(callback).Run(/*success=*/false);
+  }
 
   ads_->TriggerNewTabPageAdEvent(placement_id, creative_instance_id,
                                  mojom_ad_event_type, std::move(callback));
@@ -132,7 +153,9 @@ void AdsServiceImplIOS::TriggerNewTabPageAdEvent(
 void AdsServiceImplIOS::MaybeGetNotificationAd(
     const std::string& placement_id,
     MaybeGetNotificationAdCallback callback) {
-  CHECK(IsRunning());
+  if (!IsRunning()) {
+    return std::move(callback).Run(/*ad=*/std::nullopt);
+  }
 
   ads_->MaybeGetNotificationAd(placement_id, std::move(callback));
 }
@@ -141,7 +164,9 @@ void AdsServiceImplIOS::TriggerNotificationAdEvent(
     const std::string& placement_id,
     mojom::NotificationAdEventType mojom_ad_event_type,
     TriggerAdEventCallback callback) {
-  CHECK(IsRunning());
+  if (!IsRunning()) {
+    return std::move(callback).Run(/*success=*/false);
+  }
 
   ads_->TriggerNotificationAdEvent(placement_id, mojom_ad_event_type,
                                    std::move(callback));
@@ -152,7 +177,9 @@ void AdsServiceImplIOS::TriggerPromotedContentAdEvent(
     const std::string& creative_instance_id,
     mojom::PromotedContentAdEventType mojom_ad_event_type,
     TriggerAdEventCallback callback) {
-  CHECK(IsRunning());
+  if (!IsRunning()) {
+    return std::move(callback).Run(/*success=*/false);
+  }
 
   ads_->TriggerPromotedContentAdEvent(placement_id, creative_instance_id,
                                       mojom_ad_event_type, std::move(callback));
@@ -161,7 +188,9 @@ void AdsServiceImplIOS::TriggerPromotedContentAdEvent(
 void AdsServiceImplIOS::MaybeGetSearchResultAd(
     const std::string& placement_id,
     MaybeGetSearchResultAdCallback callback) {
-  CHECK(IsRunning());
+  if (!IsRunning()) {
+    return std::move(callback).Run(/*mojom_creative_ad=*/nullptr);
+  }
 
   ads_->MaybeGetSearchResultAd(placement_id, std::move(callback));
 }
@@ -170,7 +199,9 @@ void AdsServiceImplIOS::TriggerSearchResultAdEvent(
     mojom::CreativeSearchResultAdInfoPtr mojom_creative_ad,
     mojom::SearchResultAdEventType mojom_ad_event_type,
     TriggerAdEventCallback callback) {
-  CHECK(IsRunning());
+  if (!IsRunning()) {
+    return std::move(callback).Run(/*success=*/false);
+  }
 
   ads_->TriggerSearchResultAdEvent(std::move(mojom_creative_ad),
                                    mojom_ad_event_type, std::move(callback));
@@ -179,7 +210,9 @@ void AdsServiceImplIOS::TriggerSearchResultAdEvent(
 void AdsServiceImplIOS::PurgeOrphanedAdEventsForType(
     mojom::AdType mojom_ad_type,
     PurgeOrphanedAdEventsForTypeCallback callback) {
-  CHECK(IsRunning());
+  if (!IsRunning()) {
+    return std::move(callback).Run(/*success=*/false);
+  }
 
   ads_->PurgeOrphanedAdEventsForType(mojom_ad_type, std::move(callback));
 }
