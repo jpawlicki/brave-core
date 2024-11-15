@@ -1,5 +1,5 @@
 diff --git a/content/browser/renderer_host/render_frame_host_impl.cc b/content/browser/renderer_host/render_frame_host_impl.cc
-index d29dac893805535bbbd9aefe096a0ca2825a01aa..673e0d6699916d2554f773945e9bd25337acc92d 100644
+index b22f297cfec19d2afc029c2c63c8451335c6156f..3e7949e147ca30b3df7e77d66d2af593b60ccb28 100644
 --- a/content/browser/renderer_host/render_frame_host_impl.cc
 +++ b/content/browser/renderer_host/render_frame_host_impl.cc
 @@ -4817,6 +4817,7 @@ net::IsolationInfo RenderFrameHostImpl::ComputeIsolationInfoInternal(
@@ -18,7 +18,7 @@ index d29dac893805535bbbd9aefe096a0ca2825a01aa..673e0d6699916d2554f773945e9bd253
    // If it's a credentialless frame tree, use its nonce even if it's within a
    // fenced frame tree to maintain the guarantee that a credentialless frame
    // tree has a unique nonce.
-@@ -9219,6 +9221,8 @@ void RenderFrameHostImpl::CreateNewWindow(
+@@ -9225,6 +9227,8 @@ void RenderFrameHostImpl::CreateNewWindow(
          dom_storage_context, params->session_storage_namespace_id);
    }
  
