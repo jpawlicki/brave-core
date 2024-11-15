@@ -9,6 +9,8 @@
 // where it is not consistant due to "network" responses) and
 // optimized (rollup controls the order in which modules are executed).
 
+import 'chrome://resources/brave/br_elements/br_toolbar/br_toolbar.js'
+
 import './config.js'
 import { ContentSettingsTypes } from '../site_settings/constants.js'
 import './about_page.js'
