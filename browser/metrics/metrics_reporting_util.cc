@@ -26,10 +26,8 @@ bool GetDefaultPrefValueForMetricsReporting() {
       return true;
     case version_info::Channel::UNKNOWN:
       return false;
-    default:
-      NOTREACHED_IN_MIGRATION();
-      return false;
   }
+  NOTREACHED();
 }
 
 bool ShouldShowCrashReportPermissionAskDialog() {

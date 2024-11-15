@@ -58,7 +58,7 @@ void FarblePlugins(DOMPluginArray* owner,
       owner->DomWindow(), ContentSettingsType::BRAVE_WEBCOMPAT_PLUGINS,
       BraveFarblingLevel::OFF)) {
     case BraveFarblingLevel::OFF: {
-      break;
+      return;
     }
     case BraveFarblingLevel::MAXIMUM: {
       dom_plugins->clear();
@@ -136,11 +136,10 @@ void FarblePlugins(DOMPluginArray* owner,
       dom_plugins->push_back(fake_dom_plugin_2);
       // Shuffle the list of plugins pseudo-randomly, based on the domain key.
       std::shuffle(dom_plugins->begin(), dom_plugins->end(), prng);
-      break;
+      return;
     }
-    default:
-      NOTREACHED_IN_MIGRATION();
   }
+  NOTREACHED();
 }
 
 }  // namespace brave
