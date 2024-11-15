@@ -12,7 +12,7 @@
 
 namespace gfx {
   //FROM: ui/gfx/geometry/size.h
-  const int kFaviconSize = 16;
+constexpr int kFaviconSize = 16;
 } // namespace gfx
 
 namespace importer {
