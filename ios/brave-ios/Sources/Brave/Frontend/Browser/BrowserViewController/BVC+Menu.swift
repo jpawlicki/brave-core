@@ -67,7 +67,9 @@ extension BrowserViewController {
           )
         },
         installVPNProfile: { [unowned self] in
-          self.present(BraveVPNInstallViewController(), animated: true)
+          self.popToBVC(isAnimated: true) {
+            self.present(BraveVPNInstallViewController(), animated: true)
+          }
         }
       )
 
@@ -140,8 +142,10 @@ extension BrowserViewController {
             isPrivileged: false
           )
         },
-        installVPNProfile: { [unowned menuController] in
-          menuController.pushInnerMenu(BraveVPNInstallViewController())
+        installVPNProfile: { [unowned self] in
+          self.popToBVC(isAnimated: true) {
+            self.present(BraveVPNInstallViewController(), animated: true)
+          }
         }
       )
 
