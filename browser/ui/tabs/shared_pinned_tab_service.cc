@@ -257,12 +257,12 @@ void SharedPinnedTabService::CacheWebContentsIfNeeded(
   }
 
   for (auto& pinned_tab : pinned_tabs) {
-    if (!pinned_tab->contents()) {
+    if (!pinned_tab->GetContents()) {
       // Could be already cached by another component.
       continue;
     }
 
-    if (!SharedContentsData::FromWebContents(pinned_tab->contents())) {
+    if (!SharedContentsData::FromWebContents(pinned_tab->GetContents())) {
       continue;
     }
 
