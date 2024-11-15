@@ -6,6 +6,7 @@
 #include "third_party/blink/renderer/modules/plugins/dom_plugin_array.h"
 
 #include "base/compiler_specific.h"
+#include "base/types/cxx23_to_underlying.h"
 #include "brave/third_party/blink/renderer/core/farbling/brave_session_cache.h"
 #include "third_party/blink/renderer/core/frame/local_dom_window.h"
 #include "third_party/blink/renderer/core/frame/local_frame.h"
@@ -58,7 +59,7 @@ void FarblePlugins(DOMPluginArray* owner,
       owner->DomWindow(), ContentSettingsType::BRAVE_WEBCOMPAT_PLUGINS,
       BraveFarblingLevel::OFF)) {
     case BraveFarblingLevel::OFF: {
-      break;
+      return;
     }
     case BraveFarblingLevel::MAXIMUM: {
       dom_plugins->clear();
@@ -136,11 +137,11 @@ void FarblePlugins(DOMPluginArray* owner,
       dom_plugins->push_back(fake_dom_plugin_2);
       // Shuffle the list of plugins pseudo-randomly, based on the domain key.
       std::shuffle(dom_plugins->begin(), dom_plugins->end(), prng);
-      break;
+      return;
     }
-    default:
-      NOTREACHED_IN_MIGRATION();
   }
+  NOTREACHED() << "Unexpected value for farbling_level: "
+               << base::to_underlying(farbling_level);
 }
 
 }  // namespace brave
