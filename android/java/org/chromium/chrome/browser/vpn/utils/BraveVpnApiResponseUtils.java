@@ -8,7 +8,6 @@
 package org.chromium.chrome.browser.vpn.utils;
 
 import android.app.Activity;
-import android.text.TextUtils;
 import android.util.Pair;
 
 import androidx.lifecycle.LiveData;
@@ -66,15 +65,16 @@ public class BraveVpnApiResponseUtils {
             BraveVpnServerRegion braveVpnServerRegion =
                     BraveVpnUtils.getServerRegionForTimeZone(
                             jsonTimezones, TimeZone.getDefault().getID());
-            String regionFromTimeZone = braveVpnServerRegion.getRegionName();
-            if (TextUtils.isEmpty(regionFromTimeZone)) {
+            if (braveVpnServerRegion == null || braveVpnServerRegion.getRegionName().isEmpty()) {
                 BraveVpnUtils.showToast(
                         String.format(
                                 activity.getResources()
                                         .getString(R.string.couldnt_get_matching_timezone),
                                 TimeZone.getDefault().getID()));
+                BraveVpnUtils.dismissProgressDialog();
                 return;
             }
+            String regionFromTimeZone = braveVpnServerRegion.getRegionName();
             String regionForHostName = regionFromTimeZone;
             String regionPrecision = braveVpnServerRegion.getRegionPrecision();
 
