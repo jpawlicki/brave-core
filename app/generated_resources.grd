@@ -8452,6 +8452,24 @@ Keep your key file in a safe place. You will need it to create new versions of y
       <message name="IDS_NTP_MODULES_MOST_RELEVANT_TAB_RESUMPTION_SEE_MORE" desc="A label for the see more button in the most relevant tab resumption module.">
         See more
       </message>
+      <message name="IDS_NTP_MODULES_MICROSOFT_AUTHENTICATION_NAME" desc="Name of the Microsoft Authentication module as shown in various UIs.">
+        Microsoft Authentication
+      </message>
+      <message name="IDS_NTP_MICROSOFT_AUTHENTICATION_DISABLE_BUTTON_TEXT" desc="Text shown on the disable button of the Microsoft Authentication module.">
+       Don't show this card
+      </message>
+      <message name="IDS_NTP_MICROSOFT_AUTHENTICATION_DISMISS_BUTTON_TEXT" desc="Text shown on the disable button of the Microsoft Authentication module.">
+       Hide for 12 hours
+      </message>
+      <message name="IDS_NTP_MICROSOFT_AUTHENTICATION_HEADING" desc="First line of text shown in the Microsoft Authentication module.">
+       See your Outlook Calendar and Sharepoint files
+      </message>
+      <message name="IDS_NTP_MICROSOFT_AUTHENTICATION_SUBHEADING" desc="Second line of text shown in the Microsoft Authentication module.">
+       Easily access recent documents and upcoming calendar events
+      </message>
+      <message name="IDS_NTP_MICROSOFT_AUTHENTICATION_SIGN_IN_BUTTON_TEXT" desc="Text shown on the Microsoft Authentication module's sign in button.">
+       Sign in with Microsoft
+      </message>
 
       <!-- Mobile NTP Middle Slot Promo -->
       <message name="IDS_NTP_MOBILE_PROMO_HEADER" desc="Header for a promo that shows on the Desktop NTP prompting user to scan a QR code with their mobile device">
@@ -9386,7 +9404,7 @@ Keep your key file in a safe place. You will need it to create new versions of y
         Close all
       </message>
       <message name="IDS_DECLUTTER_CLOSE_TAB_ARIA_LABEL" desc="The accessible label declutter for the button which excludes a tab from the list" is_accessibility_with_no_ui="true">
-        Remove <ph name="TAB_TITLE">$1<ex>New Tab</ex></ph> from list
+        Remove <ph name="TAB_TITLE">$1<ex>New Tab</ex></ph>, <ph name="LAST_ACTIVE">$2<ex>Visited 9 days ago</ex></ph> from list
       </message>
       <message name="IDS_DECLUTTER_CLOSE_TAB_TOOLTIP" desc="The declutter tooltip for the button which excludes a tab from the list">
         Remove tab from list
@@ -9406,12 +9424,12 @@ Keep your key file in a safe place. You will need it to create new versions of y
       </message>
       <if expr="use_titlecase">
         <message name="IDS_TAB_ORGANIZE_MENU" desc="In Title Case: The text label for the tab organization app menu item.">
-          Organize Tabs
+          Group Tabs With AI
         </message>
       </if>
       <if expr="not use_titlecase">
         <message name="IDS_TAB_ORGANIZE_MENU" desc="The text label for the tab organization app menu item.">
-          Organize tabs
+          Group tabs with AI
         </message>
       </if>
       <message name="IDS_TAB_ORGANIZATION_SUCCESS_IPH" desc="The body text of the IPH describing how to interact with a tab group resulting from tab organization.">
@@ -9419,6 +9437,9 @@ Keep your key file in a safe place. You will need it to create new versions of y
       </message>
       <message name="IDS_TAB_ORGANIZATION_SUCCESS_IPH_SCREENREADER" desc="The screen reader text of the IPH describing how to interact with a tab group resulting from tab organization." is_accessibility_with_no_ui="true">
         Select the tab group and activate the context menu to edit
+      </message>
+      <message name="IDS_TAB_ORGANIZATION_SELECTOR_ARIA_LABEL" desc="The screen reader text describing the tab organization selector button" is_accessibility_with_no_ui="true">
+        <ph name="HEADING">$1<ex>Group tabs with AI</ex></ph>. <ph name="SUBHEADING">$2<ex>Get your tabs sorted</ex></ph>
       </message>
 
       <!-- Strings for experimental AI promo -->
@@ -10761,6 +10782,12 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Brave P
       </message>
       <message name="IDS_PICTURE_IN_PICTURE_MINIMIZE_CONTROL_TEXT" desc="Text label of the minimize control button. The button appears when the user hovers over the Picture-in-Picture window.">
         Minimize
+      </message>
+      <message name="IDS_PICTURE_IN_PICTURE_REPLAY_10_TEXT" desc="Text label of the replay 10 seconds button. The button appears when the user hovers over the Picture-in-Picture window.">
+        Replay 10 seconds
+      </message>
+      <message name="IDS_PICTURE_IN_PICTURE_FORWARD_10_TEXT" desc="Text label of the forward 10 seconds button. The button appears when the user hovers over the Picture-in-Picture window.">
+        Forward 10 seconds
       </message>
       <message name="IDS_PICTURE_IN_PICTURE_RESIZE_HANDLE_TEXT" desc="Text label of the resize handle. The button appears when the user hovers over the Picture-in-Picture window.">
         Resize

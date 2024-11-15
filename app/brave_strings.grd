@@ -583,15 +583,6 @@ Permissions you've already given to websites and apps may apply to this account.
         </message>
       </if>
 
-      <!-- Crash Recovery Dialog -->
-      <message name="IDS_CRASH_RECOVERY_TITLE" desc="Title of dialog shown when the browser crashes." translateable="false">
-        Brave
-      </message>
-      <if expr="is_win">
-        <message name="IDS_CRASH_RECOVERY_CONTENT" desc="Text content telling the user the browser has crashed.">
-          Whoa! Brave has crashed. Relaunch now?
-        </message>
-      </if>
       <!-- Password generation strings -->
       <message name="IDS_PASSWORD_GENERATION_PROMPT" desc="Autofill dropdown text describing password generation.">
         Brave will save this password in your Brave sync chain. You won’t have to remember it.
@@ -1631,11 +1622,6 @@ Permissions you've already given to websites and apps may apply to this account.
         </message>
         <message name="IDS_SIDE_PANEL_LENS_OVERLAY_PINNABLE_FOLLOWUP_IPH_SCREENREADER" desc="The screen reader text of the IPH describing that the Lens Overlay panel has been pinned." is_accessibility_with_no_ui="true">
           Pinned! You can access Image Search again from the new button on the toolbar
-        </message>
-
-        <!-- Search Bubble Strings -->
-        <message name="IDS_LENS_SEARCH_BUBBLE_DIALOG_TITLE" desc="The name of the lens search bubble dialog.">
-          Image Search Search Bubble
         </message>
 
         <!-- Overlay WebUI Strings -->
